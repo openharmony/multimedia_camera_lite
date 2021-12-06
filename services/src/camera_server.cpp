@@ -66,7 +66,7 @@ void CameraServer::CameraServerRequestHandle(int funcId, void *origin, IpcIo *re
             break;
         case CAMERA_SERVER_SET_CAMERA_CALLBACK:
             CameraServer::GetInstance()->SetCameraCallback(req, reply);
-            break;        
+            break;
         case CAMERA_SERVER_SET_CODEC_FRAME_RATE:
             CameraServer::GetInstance()->setFrameRate(req, reply);
             break;
