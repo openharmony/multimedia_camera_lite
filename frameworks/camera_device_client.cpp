@@ -86,7 +86,7 @@ int32_t CameraDeviceClient::SetCameraConfig(CameraConfig &cc)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 1);
     if (cameraId_.empty()) {
         MEDIA_ERR_LOG("no camera exist.");
         return MEDIA_ERR;
@@ -97,6 +97,7 @@ int32_t CameraDeviceClient::SetCameraConfig(CameraConfig &cc)
     CallBackPara para = {};
     para.funcId = CAEMRA_SERVER_SET_CAMERA_CONFIG;
     para.data = this;
+    IpcIoPushSvc(&io, &sid_);
     uint32_t ret = proxy_->Invoke(proxy_, CAEMRA_SERVER_SET_CAMERA_CONFIG, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Set camera config ipc transmission failed. (ret=%d)", ret);
@@ -145,7 +146,7 @@ int32_t CameraDeviceClient::TriggerLoopingCapture(FrameConfig &fc)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
-    constexpr uint32_t maxSurfaceNum = 2; // 2 surfaces at most
+    constexpr uint32_t maxSurfaceNum = 3; // 2 surfaces at most, 1 sid
     /* serilize parameters */
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, maxSurfaceNum);
     if (cameraId_.empty()) {
@@ -161,6 +162,7 @@ int32_t CameraDeviceClient::TriggerLoopingCapture(FrameConfig &fc)
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_TRIGGER_LOOPING_CAPTURE;
     para.data = this;
+    IpcIoPushSvc(&io, &sid_);
     uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_TRIGGER_LOOPING_CAPTURE, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Trigger looping capture ipc  transmission failed. (ret=%d)", ret);
@@ -172,7 +174,7 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
-    constexpr uint32_t maxSurfaceNum = 2; // 2 surfaces at most
+    constexpr uint32_t maxSurfaceNum = 3; // 2 surfaces at most, 1 sid
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, maxSurfaceNum);
 
     if (cameraId_.empty()) {
@@ -189,6 +191,7 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_TRIGGER_SINGLE_CAPTURE;
     para.data = this;
+    IpcIoPushSvc(&io, &sid_);
     uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_TRIGGER_SINGLE_CAPTURE, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Trigger single capture ipc  transmission failed. (ret=%d)", ret);
