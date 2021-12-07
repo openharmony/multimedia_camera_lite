@@ -209,7 +209,15 @@ void CameraServer::SetCameraConfig(IpcIo *req, IpcIo *reply)
     }
     int32_t setStatus = device_->SetCameraConfig();
     IpcIoPushInt32(reply, setStatus);
-    OnCameraConfigured(setStatus);
+    SvcIdentity *sid = IpcIoPopSvc(req);
+    if (sid == nullptr) {
+        MEDIA_ERR_LOG("sid is null, failed.");
+        return;
+    }
+#ifdef __LINUX__
+    BinderAcquire(sid->ipcContext, sid->handle);
+#endif
+    OnCameraConfigured(setStatus, sid);
 }
 
 void CameraServer::SetCameraCallback(IpcIo *req, IpcIo *reply)
@@ -308,7 +316,16 @@ void CameraServer::TriggerLoopingCapture(IpcIo *req, IpcIo *reply)
     }
     uint32_t streamId = 0;
     int32_t loopingCaptureStatus = device_->TriggerLoopingCapture(*fc, &streamId);
-    OnTriggerLoopingCaptureFinished(loopingCaptureStatus, streamId);
+    SvcIdentity *sid = IpcIoPopSvc(req);
+    if (sid == nullptr) {
+        MEDIA_ERR_LOG("sid is null, failed.");
+        delete fc;
+        return;
+    }
+#ifdef __LINUX__
+    BinderAcquire(sid->ipcContext, sid->handle);
+#endif
+    OnTriggerLoopingCaptureFinished(loopingCaptureStatus, streamId, sid);
     delete fc;
 }
 
@@ -333,7 +350,16 @@ void CameraServer::TriggerSingleCapture(IpcIo *req, IpcIo *reply)
     }
     uint32_t streamId = 0;
     int32_t singleCaptureStatus = device_->TriggerSingleCapture(*fc, &streamId);
-    OnTriggerSingleCaptureFinished(singleCaptureStatus);
+    SvcIdentity *sid = IpcIoPopSvc(req);
+    if (sid == nullptr) {
+        MEDIA_ERR_LOG("sid is null, failed.");
+        delete fc;
+        return;
+    }
+#ifdef __LINUX__
+    BinderAcquire(sid->ipcContext, sid->handle);
+#endif
+    OnTriggerSingleCaptureFinished(singleCaptureStatus, sid);
     delete fc;
 }
 
@@ -367,13 +393,13 @@ void CameraServer::OnCameraStatusChange(int32_t ret, SvcIdentity *sid)
     }
 }
 
-void CameraServer::OnTriggerSingleCaptureFinished(int32_t ret)
+void CameraServer::OnTriggerSingleCaptureFinished(int32_t ret, SvcIdentity *sid)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
     IpcIoPushInt32(&io, ret);
-    int32_t ans = Transact(nullptr, sid_, ON_TRIGGER_SINGLE_CAPTURE_FINISHED,
+    int32_t ans = Transact(nullptr, *sid, ON_TRIGGER_SINGLE_CAPTURE_FINISHED,
         &io, nullptr, LITEIPC_FLAG_ONEWAY, nullptr);
     if (ans != LITEIPC_OK) {
         MEDIA_ERR_LOG("Trigger single capture callback : on trigger single capture frame finished failed.");
@@ -381,26 +407,26 @@ void CameraServer::OnTriggerSingleCaptureFinished(int32_t ret)
     }
 }
 
-void CameraServer::OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId)
+void CameraServer::OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId, SvcIdentity *sid)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
     IpcIoPushInt32(&io, ret);
-    int32_t ans = Transact(nullptr, sid_, ON_TRIGGER_LOOPING_CAPTURE_FINISHED,
+    int32_t ans = Transact(nullptr, *sid, ON_TRIGGER_LOOPING_CAPTURE_FINISHED,
         &io, nullptr, LITEIPC_FLAG_ONEWAY, nullptr);
     if (ans != LITEIPC_OK) {
         MEDIA_ERR_LOG("Trigger looping capture callback : on trigger looping capture finished failed.");
     }
 }
 
-void CameraServer::OnCameraConfigured(int32_t ret)
+void CameraServer::OnCameraConfigured(int32_t ret, SvcIdentity *sid)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
     IpcIoPushInt32(&io, ret);
-    int32_t ans = Transact(nullptr, sid_, ON_CAMERA_CONFIGURED,
+    int32_t ans = Transact(nullptr, *sid, ON_CAMERA_CONFIGURED,
         &io, nullptr, LITEIPC_FLAG_ONEWAY, nullptr);
     if (ans != LITEIPC_OK) {
         MEDIA_ERR_LOG("Camera config callback : on trigger looping capture finished failed.");

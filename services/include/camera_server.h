@@ -40,10 +40,10 @@ public:
     void StopLoopingCapture(IpcIo *req, IpcIo *reply);
     void TriggerSingleCapture(IpcIo *req, IpcIo *reply);
     void SetCameraCallback(IpcIo *req, IpcIo *reply);
-    void OnTriggerSingleCaptureFinished(int32_t ret);
-    void OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId);
+    void OnTriggerSingleCaptureFinished(int32_t ret, SvcIdentity *sid);
+    void OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId, SvcIdentity *sid);
     void OnCameraStatusChange(int32_t ret, SvcIdentity *sid);
-    void OnCameraConfigured(int32_t ret);
+    void OnCameraConfigured(int32_t ret, SvcIdentity *sid);
     void setFrameRate(IpcIo *req, IpcIo *reply);
     void setBitRate(IpcIo *req, IpcIo *reply);
     void setResolution(IpcIo *req, IpcIo *reply);
