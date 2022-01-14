@@ -199,7 +199,6 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
 
 void CameraDeviceClient::StopLoopingCapture()
 {
-    int32_t streamId = 0;
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
