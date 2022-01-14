@@ -52,7 +52,7 @@ CameraDeviceClient::~CameraDeviceClient()
     UnregisterIpcCallback(sid_);
 }
 
-void CameraDeviceClient::SetCameraId(string *cameraId)
+void CameraDeviceClient::SetCameraId(string& cameraId)
 {
     cameraId_ = cameraId;
 }
