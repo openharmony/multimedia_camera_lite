@@ -41,7 +41,7 @@ public:
     int32_t TriggerSingleCapture(FrameConfig &fc);
     void Release();
 
-    void SetCameraId(std::string cameraId);
+    void SetCameraId(std::string &cameraId);
     void SetCameraImpl(CameraImpl *cameraImpl);
     void SetCameraCallback();
     static int32_t SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
