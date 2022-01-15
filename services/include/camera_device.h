@@ -77,7 +77,6 @@ public:
     virtual int32_t Stop() override;
     Surface *capSurface_ = nullptr;
 private:
-    int32_t sourceIdx = 0;
     pthread_t threadId;
     static void *YuvCopyProcess(void *arg);
 };

@@ -44,7 +44,6 @@ private:
     IClientProxy* proxy_ = nullptr;
     CameraClient *cameraClient_ = nullptr;
     std::list<std::string> list_;
-    CameraAbility *ability_ = nullptr;
     std::string cameraIdForAbility;
     std::map<std::string, CameraAbility*> deviceAbilityMap_;
     std::string cameraIdForInfo;

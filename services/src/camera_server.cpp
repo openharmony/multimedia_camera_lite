@@ -218,7 +218,6 @@ FrameConfig *DeserializeFrameConfig(IpcIo &io)
         MEDIA_ERR_LOG("dataBuff is nullptr.");
         return fc;
     }
-    uint8_t *data = (uint8_t *)dataBuff->buff;
     fc->SetVendorParameter((uint8_t *)dataBuff->buff, dataBuff->buffSz);
     FreeBuffer(nullptr, dataBuff->buff);
     return fc;
@@ -230,7 +229,6 @@ void CameraServer::SetFrameConfig(IpcIo *req, IpcIo *reply)
     string cameraId((const char *)(IpcIoPopString(req, &sz)));
     int32_t streamId = IpcIoPopInt32(req);
     MEDIA_ERR_LOG("SetFrameConfig streamId(%d).", streamId);
-    CameraDevice *device_ = CameraService::GetInstance()->GetCameraDevice(cameraId);
     FrameConfig *fc = DeserializeFrameConfig(*req);
     if (fc == nullptr) {
         MEDIA_ERR_LOG("Deserialize frame config failed.");

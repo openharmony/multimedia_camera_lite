@@ -439,14 +439,6 @@ int32_t RecordAssistant::Stop()
     return MEDIA_OK;
 }
 
-static void GetSurfaceRect(Surface *surface, IRect *attr)
-{
-    attr->x = std::stoi(surface->GetUserData(string("region_position_x")));
-    attr->y = std::stoi(surface->GetUserData(string("region_position_y")));
-    attr->w = std::stoi(surface->GetUserData(string("region_width")));
-    attr->h = std::stoi(surface->GetUserData(string("region_height")));
-}
-
 void* PreviewAssistant::YuvCopyProcess(void *arg)
 {
     return nullptr;
