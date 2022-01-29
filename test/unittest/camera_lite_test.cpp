@@ -543,7 +543,7 @@ public:
 /* *
  * Get camera Id
  */
-void GetCameraId(CameraKit *cameraKit, list<string> &cameraList, string &cameraId)
+bool GetCameraId(CameraKit *cameraKit, list<string> &cameraList, string &cameraId)
 {
     cameraKit = CameraKit::GetInstance();
     cameraList = cameraKit->GetCameraIds();
@@ -568,8 +568,9 @@ void GetCameraId(CameraKit *cameraKit, list<string> &cameraList, string &cameraI
 
     if (cameraId.empty()) {
         cout << "No available camera.(1080p wanted)" << endl;
-        return;
-    }
+        return false;
+    } else
+        return true;
 }
 
 /* start camera kit interface test */
@@ -718,7 +719,7 @@ HWTEST_F(CameraLiteTest, Test_RegisterCameraDeviceCallback_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     SampleCameraDeviceCallback deviceCallback = SampleCameraDeviceCallback();
     g_onCameraAvailableFlag = false;
@@ -733,7 +734,7 @@ HWTEST_F(CameraLiteTest, PrfTest_RegisterCameraDeviceCallback_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     SampleCameraDeviceCallback deviceCallback = SampleCameraDeviceCallback();
     struct timespec tv1 = {0};
@@ -757,7 +758,7 @@ HWTEST_F(CameraLiteTest, Test_UnregisterCameraDeviceCallback_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     SampleCameraDeviceCallback deviceCallback = SampleCameraDeviceCallback();
     g_onCameraAvailableFlag = false;
@@ -775,7 +776,7 @@ HWTEST_F(CameraLiteTest, PrfTest_UnregisterCameraDeviceCallback_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     SampleCameraDeviceCallback deviceCallback = SampleCameraDeviceCallback();
     struct timespec tv1 = {0};
@@ -1436,7 +1437,7 @@ HWTEST_F(CameraLiteTest, Test_GetSurface_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1454,7 +1455,7 @@ HWTEST_F(CameraLiteTest, Test_GetSurface_002, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1471,7 +1472,7 @@ HWTEST_F(CameraLiteTest, Test_GetSurface_003, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1597,7 +1598,7 @@ HWTEST_F(CameraLiteTest, Test_OnFrameProgressed_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1613,7 +1614,7 @@ HWTEST_F(CameraLiteTest, Test_OnFrameCompletedFlag_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1628,7 +1629,7 @@ HWTEST_F(CameraLiteTest, Test_OnFrameErrorFlag_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     sleep(2);
@@ -1747,7 +1748,7 @@ HWTEST_F(CameraLiteTest, Test_Capture_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     g_onCaptureTriggerStartedFlag = false;
     g_onCaptureTriggerCompletedFlag = false;
@@ -1803,7 +1804,7 @@ HWTEST_F(CameraLiteTest, Test_Capture_004, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     g_onCaptureTriggerStartedFlag = false;
     g_onCaptureTriggerCompletedFlag = false;
@@ -1823,7 +1824,7 @@ HWTEST_F(CameraLiteTest, Test_Capture_005, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     g_onCaptureTriggerStartedFlag = false;
     g_onCaptureTriggerCompletedFlag = false;
@@ -1843,7 +1844,7 @@ HWTEST_F(CameraLiteTest, Test_Capture_006, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     g_onCaptureTriggerStartedFlag = false;
     g_onCaptureTriggerCompletedFlag = false;
@@ -1863,7 +1864,7 @@ HWTEST_F(CameraLiteTest, Test_Capture_007, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     g_onCaptureTriggerStartedFlag = false;
     g_onCaptureTriggerCompletedFlag = false;
@@ -1905,7 +1906,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_001, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
@@ -1921,7 +1922,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_002, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
@@ -1937,7 +1938,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_003, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
@@ -1955,7 +1956,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_004, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
@@ -1974,7 +1975,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_005, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
@@ -1994,7 +1995,7 @@ HWTEST_F(CameraLiteTest, Test_Preview_006, Level1)
     list<string> cameraList;
     string cameraId;
     EventHandler eventHdlr;
-    GetCameraId(cameraKit, cameraList, cameraId);
+    ASSERT_TRUE(GetCameraId(cameraKit, cameraList, cameraId));
     SampleCameraStateMng camStateMng(eventHdlr);
     cameraKit->CreateCamera(cameraId, camStateMng, eventHdlr);
     g_onPreviewFlag = false;
