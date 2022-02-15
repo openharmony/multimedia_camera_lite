@@ -66,5 +66,15 @@ void CameraKit::CreateCamera(const string &cameraId, CameraStateCallback &callba
 {
     cameraManager_->CreateCamera(cameraId, callback, handler);
 }
+
+uint8_t CameraKit::GetCameraModeNum()
+{
+    return cameraManager_->GetCameraModeNum();
+}
+
+int32_t CameraKit::SetCameraMode(uint8_t modeIndex)
+{
+    return cameraManager_->SetCameraMode(modeIndex);
+}
 } // namespace Media
 } // namespace OHOS

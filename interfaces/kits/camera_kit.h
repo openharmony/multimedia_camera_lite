@@ -68,6 +68,20 @@ public:
     static CameraKit *GetInstance();
 
     /**
+     * @brief Obtains num of supported camera mode.
+     *
+     * @return Returns the num.
+     */
+    uint8_t GetCameraModeNum();
+	
+	/**
+     * @brief set camera working mode index.
+     *
+     * @return Returns 0 if success, other if fail.
+     */
+    int32_t SetCameraMode(uint8_t modeIndex);
+	
+    /**
      * @brief Obtains IDs of cameras that are currently available.
      *
      * @return Returns the camera IDs if obtained; returns <b>NULL</b> otherwise.

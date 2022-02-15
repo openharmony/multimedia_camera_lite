@@ -20,6 +20,7 @@ using namespace std;
 
 namespace OHOS {
 namespace Media {
+const int32_t DEFAULT_FPS = 30;
 int32_t FrameConfig::GetFrameConfigType()
 {
     return type_;
@@ -32,6 +33,7 @@ list<Surface *> FrameConfig::GetSurfaces()
 
 void FrameConfig::AddSurface(Surface &surface)
 {
+    surfaceList_.remove(&surface);
     surfaceList_.emplace_back(&surface);
 }
 
@@ -42,6 +44,9 @@ void FrameConfig::RemoveSurface(Surface &surface)
 
 void *FrameConfig::GetValue(uint32_t key)
 {
+    if (key == CAM_IMAGE_CROP_RECT) {
+        return &crop;
+    }
     auto p = keyMap_.find(key);
     return (p == keyMap_.end()) ? nullptr : (&p->second);
 }
@@ -84,15 +89,38 @@ void FrameConfig::SetValue(uint32_t key, const void *value)
     }
     switch (key) {
         case PARAM_KEY_IMAGE_ENCODE_QFACTOR:
-        case PARAM_KEY_STREAM_FPS:
+        case CAM_FRAME_FPS:
+        case CAM_IMAGE_INVERT_MODE:
         case CAM_IMAGE_FORMAT:
             keyMap_[key] = *(static_cast<const int32_t *>(value));
+            break;
+        case CAM_IMAGE_CROP_RECT:
+            crop.x = (static_cast<const CameraRect *>(value))->x;
+            crop.y = (static_cast<const CameraRect *>(value))->y;
+            crop.w = (static_cast<const CameraRect *>(value))->w;
+            crop.h = (static_cast<const CameraRect *>(value))->h;
             break;
         default:
             break;
     }
 }
 
-FrameConfig::FrameConfig(int32_t type) : type_(type) {}
+FrameConfig::FrameConfig(int32_t type) : type_(type)
+{
+    crop.x = 0;
+    crop.y = 0;
+    crop.w = 0;
+    crop.h = 0;
+    SetParameter(CAM_IMAGE_CROP_RECT, crop);
+    SetParameter(CAM_IMAGE_INVERT_MODE, CAM_CENTER_MIRROR);
+    SetParameter(CAM_FRAME_FPS, DEFAULT_FPS);
+    if (type == FRAME_CONFIG_RECORD) {
+        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_H265);
+    } else if (type == FRAME_CONFIG_CAPTURE) {
+        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_JPEG);
+    } else {
+        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_YVU420);
+    }
+}
 } // namespace Media
 } // namespace OHOS

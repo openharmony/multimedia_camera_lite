@@ -104,6 +104,16 @@ public:
         }
     }
 
+    uint8_t GetCameraModeNum() override
+    {
+        return cameraServiceClient_->GetCameraModeNum();
+    }
+
+    int32_t SetCameraMode(uint8_t modeIndex) override
+    {
+        return cameraServiceClient_->SetCameraMode(modeIndex);
+    }
+
     list<string> GetCameraIds() override
     {
         list<string> cameraList;

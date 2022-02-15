@@ -23,8 +23,19 @@ CameraAbility::~CameraAbility() {}
 
 list<CameraPicSize> CameraAbility::GetSupportedSizes(int format) const
 {
-    auto target = SizeMap_.find((uint32_t)format);
-    return target->second;
+    switch (format) {
+        case CAM_FORMAT_YVU420:
+        case CAM_FORMAT_JPEG:
+        case CAM_FORMAT_H264:
+        case CAM_FORMAT_H265: {
+            auto target = SizeMap_.find(static_cast<uint32_t>(format));
+            return target->second;
+        }
+        default: {
+            list<CameraPicSize> emptyList;
+            return emptyList;
+        }
+    }
 }
 
 std::list<int32_t> CameraAbility::GetSupportedAfModes() const
@@ -40,8 +51,11 @@ std::list<int32_t> CameraAbility::GetSupportedAeModes() const
 list<CameraPicSize> CameraAbility::GetSupportParameterRange(uint32_t key) const
 {
     switch (key) {
-        case PARAM_KEY_SIZE: {
-            auto target = SizeMap_.find(PARAM_KEY_SIZE);
+        case CAM_FORMAT_YVU420:
+        case CAM_FORMAT_JPEG:
+        case CAM_FORMAT_H264:
+        case CAM_FORMAT_H265: {
+            auto target = SizeMap_.find(key);
             return target->second;
         }
         default: {
@@ -53,8 +67,18 @@ list<CameraPicSize> CameraAbility::GetSupportParameterRange(uint32_t key) const
 
 void CameraAbility::SetSupportParameterRange(uint32_t key, list<CameraPicSize> &rangeList)
 {
-    SizeMap_[key] = rangeList;
-    supportProperties_.emplace(PARAM_KEY_SIZE);
+    switch (key) {
+        case CAM_FORMAT_YVU420:
+        case CAM_FORMAT_JPEG:
+        case CAM_FORMAT_H264:
+        case CAM_FORMAT_H265: {
+            supportProperties_.emplace(key);
+            SizeMap_[key] = rangeList;
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void CameraAbility::SetSupportParameterRange(uint32_t key, list<int32_t> &rangeList)
@@ -75,6 +99,9 @@ void CameraAbility::SetSupportParameterRange(uint32_t key, list<int32_t> &rangeL
 
 bool CameraAbility::IsParameterSupport(uint32_t key) const
 {
+    if (key >= CAM_FORMAT_BUTT) {
+        return false;
+    }
     return true;
 }
 } // namespace Media

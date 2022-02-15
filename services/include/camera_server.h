@@ -44,6 +44,8 @@ public:
     void OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId);
     void OnCameraStatusChange(int32_t ret, SvcIdentity *sid);
     void OnCameraConfigured(int32_t ret);
+    void GetCameraModeNum(IpcIo *req, IpcIo *reply);
+    void SetCameraMode(IpcIo *req, IpcIo *reply);
 private:
     CameraServer()
     {

@@ -72,12 +72,15 @@ typedef enum {
     CAM_IMAGE_DENOISE_MODE,
     /* Image denoising level */
     CAM_IMAGE_DENOISE_LEVEL,
+    /* Image mirror flip */
+    CAM_IMAGE_INVERT_MODE,
+    /* Image CROP_RECT */
+    CAM_IMAGE_CROP_RECT,
     /* Only vaild when frameConfigType is callback*/
     CAM_IMAGE_FORMAT,
     /* Auto foucue mode */
     CAM_AF_MODE,
     /* Image denoising level */
-    PARAM_KEY_STREAM_FPS,
     PARAM_KEY_SIZE,
     PARAM_KEY_IMAGE_ENCODE_QFACTOR
 } CameraFuncKey;
@@ -93,15 +96,13 @@ typedef enum {
     CAM_ROTATION_180 = 4,      /**< 180-degree rotation  */
 } CameraInvertMode;
 
-// #define PARAM_KEY_SIZE 0
-// #define PARAM_KEY_IMAGE_ENCODE_QFACTOR 1
-
 #define ENCODER_TYPE 0
 typedef enum {
-    CAM_ENCODE_JPEG,
-    CAM_ENCODE_H264,
-    CAM_ENCODE_H265,
-    CAM_ENCODE_FORMAT_BUTT
+    CAM_FORMAT_YVU420 = 0,
+    CAM_FORMAT_JPEG,
+    CAM_FORMAT_H264,
+    CAM_FORMAT_H265,
+    CAM_FORMAT_BUTT
 } CameraEncodeFormat;
 
 typedef enum {

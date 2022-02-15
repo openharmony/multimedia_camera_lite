@@ -54,6 +54,7 @@ private:
     CameraImpl *cameraImpl_ = nullptr;
     CallBackPara *para_ = nullptr;
     SvcIdentity sid_;
+    int32_t ret_ = 0;
 };
 }
 }

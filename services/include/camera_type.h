@@ -31,6 +31,8 @@ typedef enum {
     CAMERA_SERVER_TRIGGER_LOOPING_CAPTURE,
     CAMERA_SERVER_STOP_LOOPING_CAPTURE,
     CAMERA_SERVER_SET_CAMERA_CALLBACK,
+    CAMERA_SERVER_GET_CAMERA_MODE_NUM,
+    CAMERA_SERVER_SET_CAMERA_MODE_NUM,
 } CameraServerCall;
 
 typedef enum {
@@ -48,7 +50,7 @@ struct CallBackPara {
     void* cameraConfig;
 };
 const char SERVICE_NAME[] = "CameraServer";
-static const int32_t DEFAULT_IPC_SIZE = 100;
+static const int32_t DEFAULT_IPC_SIZE = 300;
 }
 }
 #endif

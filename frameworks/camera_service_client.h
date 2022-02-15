@@ -38,7 +38,9 @@ public:
     CameraInfo *GetCameraInfo(std::string &cameraId);
     void CreateCamera(std::string cameraId);
     static int32_t ServiceClientCallback(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
-
+    uint8_t GetCameraModeNum();
+    int32_t SetCameraMode(uint8_t modeIndex);
+	
 private:
     CameraServiceClient();
     IClientProxy* proxy_ = nullptr;
@@ -51,6 +53,8 @@ private:
     CameraServiceCallback *cameraServiceCb_ = nullptr;
     SvcIdentity sid_;
     CallBackPara *para_ = nullptr;
+    uint8_t cameraModeNum = 0;
+    int32_t ret_ = 0;
 };
 } // namespace Media
 } // namespace OHOS

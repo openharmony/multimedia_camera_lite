@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 #include "camera_service.h"
-#include <string>
-#include <iostream>
-#include <unistd.h>
 #include "hal_camera.h"
 #include "media_log.h"
+#include "codec_interface.h"
 
 using namespace std;
 namespace OHOS {
@@ -70,7 +68,10 @@ CameraAbility *CameraService::GetCameraAbility(std::string &cameraId)
             .height = (uint32_t)streamCap[pos].u.formatEnum.height};
         range.emplace_back(tmpSize);
     }
-    ability->SetParameterRange(PARAM_KEY_SIZE, range);
+    ability->SetParameterRange(CAM_FORMAT_YVU420, range);
+    ability->SetParameterRange(CAM_FORMAT_JPEG, range);
+    ability->SetParameterRange(CAM_FORMAT_H264, range);
+    ability->SetParameterRange(CAM_FORMAT_H265, range);
     AbilityInfo cameraAbility = {};
     HalCameraGetAbility(atoi(cameraId.c_str()), &cameraAbility);
     list<int32_t> afModes;
@@ -130,6 +131,16 @@ list<string> CameraService::GetCameraIdList()
     return cameraStrList;
 }
 
+uint8_t CameraService::GetCameraModeNum()
+{
+    uint8_t num;
+    int32_t ret = HalCameraGetModeNum(&num);
+    if (ret == MEDIA_OK) {
+        return num;
+    }
+    return 0;
+}
+
 int32_t CameraService::CreateCamera(string cameraId)
 {
     int32_t ret = HalCameraDeviceOpen((uint32_t)std::atoi(cameraId.c_str()));
@@ -153,11 +164,24 @@ int32_t CameraService::CreateCamera(string cameraId)
 
 int32_t CameraService::CloseCamera(string cameraId)
 {
+    CameraDevice *device = GetCameraDevice(cameraId);
+    if (device != NULL) {
+        device->StopLoopingCapture();
+        deviceMap_.erase(cameraId);
+    }
     int32_t ret = HalCameraDeviceClose((uint32_t)std::atoi(cameraId.c_str()));
     if (ret != 0) {
         MEDIA_ERR_LOG("HalCameraDeviceClose failed. ret(%d)", ret);
     }
     return CameraServiceCallback::CAMERA_STATUS_CLOSE;
+}
+
+int32_t CameraService::SetCameraMode(uint8_t modeIndex)
+{
+    CodecDeinit();
+    int32_t ret = HalCameraSetMode(modeIndex);
+    CodecInit();
+    return ret;
 }
 } // namespace Media
 } // namespace OHOS

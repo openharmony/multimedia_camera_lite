@@ -67,6 +67,12 @@ void CameraServer::CameraServerRequestHandle(int funcId, void *origin, IpcIo *re
         case CAMERA_SERVER_SET_CAMERA_CALLBACK:
             CameraServer::GetInstance()->SetCameraCallback(req, reply);
             break;
+        case CAMERA_SERVER_SET_CAMERA_MODE_NUM:
+            CameraServer::GetInstance()->SetCameraMode(req, reply);
+            break;
+        case CAMERA_SERVER_GET_CAMERA_MODE_NUM:
+            CameraServer::GetInstance()->GetCameraModeNum(req, reply);
+            break;
         default:
             MEDIA_ERR_LOG("code not support:%d!", funcId);
             break;
@@ -86,7 +92,7 @@ void CameraServer::GetCameraAbility(IpcIo *req, IpcIo *reply)
     if (ability == nullptr) {
         return;
     }
-    list<CameraPicSize> supportSizeList = ability->GetSupportedSizes(PARAM_KEY_SIZE);
+    list<CameraPicSize> supportSizeList = ability->GetSupportedSizes(CAM_FORMAT_YVU420);
     uint32_t supportProperties = 0;
     IpcIoPushUint32(reply, supportProperties);
     uint32_t listSize = supportSizeList.size();
@@ -131,6 +137,12 @@ void CameraServer::GetCameraIdList(IpcIo *req, IpcIo *reply)
     }
 }
 
+void CameraServer::GetCameraModeNum(IpcIo *req, IpcIo *reply)
+{
+    uint8_t num = CameraService::GetInstance()->GetCameraModeNum();
+    IpcIoPushUint8(reply, num);
+}
+
 void CameraServer::CreateCamera(IpcIo *req, IpcIo *reply)
 {
     size_t sz;
@@ -149,7 +161,6 @@ void CameraServer::CreateCamera(IpcIo *req, IpcIo *reply)
 
 void CameraServer::CloseCamera(IpcIo *req, IpcIo *reply)
 {
-    MEDIA_INFO_LOG("CloseCamera enter.");
     size_t sz;
     string cameraId((const char*)(IpcIoPopString(req, &sz)));
     int32_t cameraStatus = CameraService::GetInstance()->CloseCamera(cameraId);
@@ -207,19 +218,32 @@ FrameConfig *DeserializeFrameConfig(IpcIo &io)
     if (qfactor >= 0) {
         fc->SetParameter(PARAM_KEY_IMAGE_ENCODE_QFACTOR, qfactor);
     }
-    int32_t frameRate = IpcIoPopInt32(&io);
-    fc->SetParameter(PARAM_KEY_STREAM_FPS, frameRate);
-    MEDIA_INFO_LOG("frameRate is %d", frameRate);
+
+    int32_t streamFps = IpcIoPopInt32(&io);
+    fc->SetParameter(CAM_FRAME_FPS, streamFps);
+
+    int32_t invertMode = IpcIoPopInt32(&io);
+    fc->SetParameter(CAM_IMAGE_INVERT_MODE, invertMode);
+	
+    CameraRect streamCrop;
+    streamCrop.x = IpcIoPopInt32(&io);
+    streamCrop.y = IpcIoPopInt32(&io);
+    streamCrop.w = IpcIoPopInt32(&io);
+    streamCrop.h = IpcIoPopInt32(&io);
+	
     int32_t streamFormat = IpcIoPopInt32(&io);
     fc->SetParameter(CAM_IMAGE_FORMAT, streamFormat);
     MEDIA_INFO_LOG("streamFormat is %d", streamFormat);
-    BuffPtr *dataBuff = IpcIoPopDataBuff(&io);
-    if (dataBuff == nullptr || dataBuff->buff == nullptr) {
-        MEDIA_ERR_LOG("dataBuff is nullptr.");
-        return fc;
+	
+    if (type != FRAME_CONFIG_RECORD) {
+        BuffPtr *dataBuff = IpcIoPopDataBuff(&io);
+        if (dataBuff == nullptr || dataBuff->buff == nullptr) {
+            MEDIA_ERR_LOG("dataBuff is nullptr.");
+            return fc;
+        }
+        fc->SetVendorParameter((uint8_t *)dataBuff->buff, dataBuff->buffSz);
+        FreeBuffer(nullptr, dataBuff->buff);
     }
-    fc->SetVendorParameter((uint8_t *)dataBuff->buff, dataBuff->buffSz);
-    FreeBuffer(nullptr, dataBuff->buff);
     return fc;
 }
 
@@ -272,7 +296,6 @@ void CameraServer::TriggerSingleCapture(IpcIo *req, IpcIo *reply)
 
 void CameraServer::StopLoopingCapture(IpcIo *req, IpcIo *reply)
 {
-    MEDIA_INFO_LOG("StopLoopingCapture in camera_server.cpp!");
     size_t sz;
     string cameraId((const char *)(IpcIoPopString(req, &sz)));
     CameraDevice *device_ = CameraService::GetInstance()->GetCameraDevice(cameraId);
@@ -333,6 +356,13 @@ void CameraServer::OnCameraConfigured(int32_t ret)
     if (ans != LITEIPC_OK) {
         MEDIA_ERR_LOG("Camera config callback : on trigger looping capture finished failed.");
     }
+}
+
+void CameraServer::SetCameraMode(IpcIo *req, IpcIo *reply)
+{
+    uint8_t modeIndex = IpcIoPopUint8(req);
+    int32_t cameraStatus = CameraService::GetInstance()->SetCameraMode(modeIndex);
+    IpcIoPushInt32(reply, cameraStatus);
 }
 } // namespace Media
 } // namespace OHOS

@@ -31,7 +31,14 @@ public:
     ~CameraManager() = default;
 
     static CameraManager *GetInstance();
-
+    virtual uint8_t GetCameraModeNum()
+    {
+        return 0;
+    }
+    virtual int32_t SetCameraMode(uint8_t modeIndex)
+    {
+        return -1;
+    }
     virtual std::list<std::string> GetCameraIds()
     {
         std::list<std::string> emptyList;
