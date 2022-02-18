@@ -100,7 +100,10 @@ void CameraLiteTest::SetUp(void)
 }
 
 // Tear down
-void CameraLiteTest::TearDown(void) { cout << "TearDown." << endl; }
+void CameraLiteTest::TearDown(void)
+{
+    cout << "TearDown." << endl;
+}
 
 int32_t SetupAudioSource(const Recorder &rec)
 {

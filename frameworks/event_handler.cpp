@@ -27,7 +27,7 @@ EventHandler::EventHandler() : running_(false)
 EventHandler::~EventHandler()
 {
     while (!running_) {
-        this_thread::yield(); // TODO:may not effective in muscle
+        this_thread::yield();
     }
     running_ = false;
     cv_.notify_all();

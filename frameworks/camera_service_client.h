@@ -17,7 +17,6 @@
 
 #include "liteipc_adapter.h"
 #include "serializer.h"
-// #include "camera_ability_impl.h"
 #include "camera_ability.h"
 #include "camera_info_impl.h"
 #include "iproxy_client.h"
