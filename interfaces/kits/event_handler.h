@@ -43,8 +43,8 @@ public:
 private:
     struct EventObj {
         EventObj() = default;
-        virtual ~EventObj(){};
-        virtual void Exec(){};
+        virtual ~EventObj() {};
+        virtual void Exec() {};
     };
 
     std::queue<EventObj *> msgQ_;

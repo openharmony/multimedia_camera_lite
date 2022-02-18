@@ -93,9 +93,6 @@ typedef enum {
     CAM_ROTATION_180 = 4,      /**< 180-degree rotation  */
 } CameraInvertMode;
 
-// #define PARAM_KEY_SIZE 0
-// #define PARAM_KEY_IMAGE_ENCODE_QFACTOR 1
-
 #define ENCODER_TYPE 0
 typedef enum {
     CAM_ENCODE_JPEG,
