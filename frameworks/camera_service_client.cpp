@@ -78,8 +78,6 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
                 CameraPicSize *cameraPicSize = static_cast<CameraPicSize*>(IpcIoPopFlatObj(reply, &size));
                 if (cameraPicSize != nullptr) {
                     supportSizeList.emplace_back(*cameraPicSize);    
-                } else {
-                    MEDIA_ERR_LOG("cameraPicSize is null");
                 }
             }
             // Get supported AfModes.
@@ -98,6 +96,9 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
             CameraAbility *cameraAbility = new (nothrow) CameraAbility;
             if (cameraAbility != nullptr) {
                 cameraAbility->SetParameterRange(CAM_IMAGE_YUV420, supportSizeList);
+                cameraAbility->SetParameterRange(CAM_FORMAT_JPEG, supportSizeList);
+                cameraAbility->SetParameterRange(CAM_FORMAT_H264, supportSizeList);
+                cameraAbility->SetParameterRange(CAM_FORMAT_H265, supportSizeList);
                 cameraAbility->SetParameterRange(CAM_AF_MODE, afModeList);
                 cameraAbility->SetParameterRange(CAM_AE_MODE, aeModeList);
                 client->deviceAbilityMap_.insert(
@@ -119,7 +120,6 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
             }
             break;
         }
-
         case CAMERA_SERVER_GET_CAMERAIDLIST: {
             CameraServiceClient *client = static_cast<CameraServiceClient*>(para->data);
             uint32_t listSize = IpcIoPopUint32(reply);
@@ -129,6 +129,16 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
                 client->list_.emplace_back(cameraId);
                 MEDIA_INFO_LOG("Callback : cameraId %s", cameraId.c_str());
             }
+            break;
+        }
+        case CAMERA_SERVER_GET_CAMERA_MODE_NUM: {
+            CameraServiceClient *client = static_cast<CameraServiceClient*>(para->data);
+            client->cameraModeNum = IpcIoPopUint8(reply);
+            break;
+        }
+        case CAMERA_SERVER_SET_CAMERA_MODE_NUM: {
+            CameraServiceClient *client = static_cast<CameraServiceClient*>(para->data);
+            client->ret_ = IpcIoPopInt32(reply);
             break;
         }
         default:
@@ -153,6 +163,21 @@ list<string> CameraServiceClient::GetCameraIdList()
         }
     }
     return list_;
+}
+
+uint8_t CameraServiceClient::GetCameraModeNum()
+{
+    IpcIo io;
+    uint8_t tmpData[DEFAULT_IPC_SIZE];
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
+    CallBackPara para = {};
+    para.funcId = CAMERA_SERVER_GET_CAMERA_MODE_NUM;
+    para.data = this;
+    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_MODE_NUM, &io, &para, Callback);
+    if (ret != 0) {
+        MEDIA_ERR_LOG("Get camera mode num failed. (ret=%d)", ret);
+    }
+    return this->cameraModeNum;
 }
 
 CameraAbility *CameraServiceClient::GetCameraAbility(string &cameraId)
@@ -242,6 +267,23 @@ int32_t CameraServiceClient::ServiceClientCallback(const IpcContext* context, vo
     }
     client->cameraClient_->ClearIpcMsg(ipcMsg);
     return MEDIA_OK;
+}
+
+int32_t CameraServiceClient::SetCameraMode(uint8_t modeIndex)
+{
+    IpcIo io;
+    uint8_t tmpData[DEFAULT_IPC_SIZE];
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
+    IpcIoPushUint8(&io, modeIndex);
+    CallBackPara para = {};
+    para.funcId = CAMERA_SERVER_SET_CAMERA_MODE_NUM;
+    para.data = this;
+    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_MODE_NUM, &io, &para, Callback);
+    if (ret != 0) {
+        MEDIA_ERR_LOG("Set camera mode failed.(ret=%d)", ret);
+        return ret;
+    }
+    return this->ret_;
 }
 
 void CameraServiceClient::CreateCamera(string cameraId)

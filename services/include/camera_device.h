@@ -35,7 +35,7 @@ enum LoopState {
     LOOP_STOP,
     LOOP_ERROR,
 };
-
+const int32_t RECODER_MAX_NUM = 2;
 class DeviceAssistant {
 public:
     std::thread *thrd_ = nullptr;
@@ -68,6 +68,7 @@ public:
     vector<list<Surface *>> vencSurfaces_;
     static int OnVencBufferAvailble(UINTPTR hComponent, UINTPTR dataIn, OutputInfo *buffer);
     static CodecCallback recordCodecCb_;
+    int32_t streamIdNum_[RECODER_MAX_NUM] = {-1, -1};
 };
 
 class PreviewAssistant : public DeviceAssistant {

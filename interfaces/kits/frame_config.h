@@ -152,6 +152,7 @@ private:
     int32_t type_;
     std::list<Surface *> surfaceList_;
     std::map<uint32_t, int32_t> keyMap_;
+    CameraRect crop;
     uint8_t privateTag_[PRIVATE_TAG_LEN];
     void *GetValue(uint32_t key);
     void SetValue(uint32_t key, const void *value);

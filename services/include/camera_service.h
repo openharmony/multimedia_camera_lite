@@ -34,6 +34,8 @@ public:
     int32_t CreateCamera(std::string cameraId);
     int32_t CloseCamera(string cameraId);
     list<string> GetCameraIdList();
+    uint8_t GetCameraModeNum();
+    int32_t SetCameraMode(uint8_t modeIndex);
 private:
     CameraService();
     int32_t InitCameraDevices();

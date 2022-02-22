@@ -122,21 +122,34 @@ int32_t SerilizeFrameConfig(IpcIo &io, FrameConfig &fc, uint32_t maxSurfaceNum)
     fc.GetParameter(PARAM_KEY_IMAGE_ENCODE_QFACTOR, qfactor);
     IpcIoPushInt32(&io, qfactor);
 
-    int32_t frameRate = -1;
-    fc.GetParameter(PARAM_KEY_STREAM_FPS, frameRate);
-    IpcIoPushInt32(&io, frameRate);
+    int32_t streamFps = 0;
+    fc.GetParameter(CAM_FRAME_FPS, streamFps);
+    IpcIoPushInt32(&io, streamFps);
 
+    int32_t invertMode = 0;
+    fc.GetParameter(CAM_IMAGE_INVERT_MODE, invertMode);
+    IpcIoPushInt32(&io, invertMode);
+
+    CameraRect streamCrop;
+    fc.GetParameter(CAM_IMAGE_CROP_RECT, streamCrop);
+    IpcIoPushInt32(&io, streamCrop.x);
+    IpcIoPushInt32(&io, streamCrop.y);
+    IpcIoPushInt32(&io, streamCrop.w);
+    IpcIoPushInt32(&io, streamCrop.h);
+	
     int32_t format = -1;
     fc.GetParameter(CAM_IMAGE_FORMAT, format);
     IpcIoPushInt32(&io, format);
+    if (fc.GetFrameConfigType() != FRAME_CONFIG_RECORD) {
+        uint8_t data[PRIVATE_TAG_LEN];
+        fc.GetVendorParameter(data, sizeof(data));
+        BuffPtr dataBuff = {
+            .buffSz = sizeof(data),
+            .buff = (void *)data
+        };
+        IpcIoPushDataBuff(&io, &dataBuff);
+    }
 
-    uint8_t data[PRIVATE_TAG_LEN];
-    fc.GetVendorParameter(data, sizeof(data));
-    BuffPtr dataBuff = {
-        .buffSz = sizeof(data),
-        .buff = (void *)data
-    };
-    IpcIoPushDataBuff(&io, &dataBuff);
     return MEDIA_OK;
 }
 
@@ -164,8 +177,9 @@ int32_t CameraDeviceClient::TriggerLoopingCapture(FrameConfig &fc)
     uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_TRIGGER_LOOPING_CAPTURE, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Trigger looping capture ipc  transmission failed. (ret=%d)", ret);
+        return MEDIA_ERR;
     }
-    return MEDIA_OK;
+    return ret_;
 }
 
 int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
@@ -194,7 +208,7 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
         MEDIA_ERR_LOG("Trigger single capture ipc  transmission failed. (ret=%d)", ret);
         return MEDIA_ERR;
     }
-    return MEDIA_OK;
+    return ret_;
 }
 
 void CameraDeviceClient::StopLoopingCapture()
@@ -230,8 +244,10 @@ void CameraDeviceClient::Release()
     }
     IpcIoPushString(&io, cameraId_.c_str());
     IpcIoPushSvc(&io, &sid_);
+    para_->data = this;
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_CLOSE_CAMERA;
+    para.data = this;
     uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_CLOSE_CAMERA, &io,  &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Stop Looping capture ipc  transmission failed. (ret=%d)", ret);
@@ -288,12 +304,19 @@ int32_t CameraDeviceClient::DeviceClientCallback(const IpcContext* context, void
             int32_t ret = IpcIoPopInt32(io);
             FrameConfig *fc = static_cast<FrameConfig*>(para->frameConfig);
             client->cameraImpl_->OnFrameFinished(ret, *fc);
+            client->ret_ = ret;
             break;
         }
         case ON_TRIGGER_LOOPING_CAPTURE_FINISHED: {
             int32_t ret = IpcIoPopInt32(io);
             int32_t streamId = IpcIoPopInt32(io);
             MEDIA_INFO_LOG("ON_TRIGGER_LOOPING_CAPTURE_FINISHED : (ret=%d, streamId=%d).", ret, streamId);
+            client->ret_ = ret;
+            break;
+        }
+        case ON_CAMERA_STATUS_CHANGE: {
+            int32_t ret = IpcIoPopInt32(io);
+            MEDIA_INFO_LOG("ON_CAMERA_STATUS_CHANGE : ret=%d.", ret);
             break;
         }
         default: {

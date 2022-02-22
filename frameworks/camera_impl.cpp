@@ -97,10 +97,15 @@ int32_t CameraImpl::TriggerLoopingCapture(FrameConfig &fc)
         MEDIA_ERR_LOG("Cannot find available configuration, configure the camera first.");
         return MEDIA_INVALID_PARAM;
     }
+    int32_t type = fc.GetFrameConfigType();
+    if (type == FRAME_CONFIG_CAPTURE) {
+        MEDIA_ERR_LOG("looping capture not support FRAME_CONFIG_CAPTURE");
+        return MEDIA_ERR;
+    }
     FrameConfig *curFc = GetFrameConfig(fc.GetFrameConfigType());
     if (curFc != nullptr) {
         MEDIA_ERR_LOG("Frame config of the input type is already existed.");
-        return MEDIA_OK;
+        return MEDIA_ERR;
     }
     if (deviceClient_ == nullptr) {
         return MEDIA_ERR;
@@ -143,9 +148,17 @@ void CameraImpl::StopLoopingCapture()
 
 int32_t CameraImpl::TriggerSingleCapture(FrameConfig &fc)
 {
+    if (config_ == nullptr) {
+        MEDIA_ERR_LOG("Cannot find available configuration, configure the camera first.");
+        return MEDIA_INVALID_PARAM;
+    }
     if (deviceClient_ == nullptr) {
         MEDIA_ERR_LOG("Cannot find available configuration, configure the camera first.");
         return MEDIA_INVALID_PARAM;
+    }
+    if (fc.GetFrameConfigType() != FRAME_CONFIG_CAPTURE) {
+        MEDIA_ERR_LOG("single capture only support FRAME_CONFIG_CAPTURE");
+        return MEDIA_ERR;
     }
     int32_t ret = deviceClient_->TriggerSingleCapture(dynamic_cast<FrameConfig &>(fc));
     if (ret != MEDIA_OK) {
