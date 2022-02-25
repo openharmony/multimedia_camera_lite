@@ -581,15 +581,16 @@ int32_t CaptureAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
 /* Block method, waiting for capture completed */
 int32_t CaptureAssistant::Start(uint32_t streamId)
 {
+    int32_t retCode = MEDIA_ERR;
     state_ = LOOP_LOOPING;
     HalCameraStreamOn(cameraId_, streamId);
+    int pictures = capSurface_->GetQueueSize();
     int32_t ret = CodecStart(vencHdl_);
     if (ret != 0) {
         MEDIA_ERR_LOG("Start capture encoder failed.(ret=%d)", ret);
-        state_ = LOOP_STOP;
-        return MEDIA_ERR;
+        goto FREE_RESOURCE;
     }
-    int pictures = capSurface_->GetQueueSize();
+
     do {
         SurfaceBuffer *surfaceBuf = capSurface_->RequestBuffer();
         if (surfaceBuf == nullptr) {
@@ -602,7 +603,6 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
         if (ret != 0) {
             capSurface_->CancelBuffer(surfaceBuf);
             MEDIA_ERR_LOG("Dequeue capture frame failed.(ret=%d)", ret);
-            ret = MEDIA_ERR;
             break;
         }
 
@@ -610,14 +610,11 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
         void *buf = surfaceBuf->GetVirAddr();
         if (buf == nullptr) {
             MEDIA_ERR_LOG("Invalid buffer address.");
-            ret = MEDIA_ERR;
             break;
         }
-        ret = CopyCodecOutput(buf, &size, &outInfo);
-        if (ret != MEDIA_OK) {
+        if (CopyCodecOutput(buf, &size, &outInfo) != MEDIA_OK) {
             MEDIA_ERR_LOG("No available buffer in capSurface_.");
             capSurface_->CancelBuffer(surfaceBuf);
-            ret = MEDIA_ERR;
             break;
         }
         surfaceBuf->SetSize(capSurface_->GetSize() - size);
@@ -625,21 +622,24 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
         if (capSurface_->FlushBuffer(surfaceBuf) != 0) {
             MEDIA_ERR_LOG("Flush surface buffer failed.");
             capSurface_->CancelBuffer(surfaceBuf);
-            ret = MEDIA_ERR;
             break;
         }
 
-        ret = MEDIA_OK;
         CodecQueueOutput(vencHdl_, &outInfo, 0, -1); // 0:no timeout -1:no fd
+        retCode = MEDIA_OK;
     } while (--pictures);
 
     CodecStop(vencHdl_);
+
+FREE_RESOURCE:
     CodecDestroy(vencHdl_);
     HalCameraStreamOff(cameraId_, streamId);
     HalCameraStreamDestroy(cameraId_, streamId);
+    delete capSurface_;
+    capSurface_ = nullptr;
     state_ = LOOP_STOP;
 
-    return ret;
+    return retCode;
 }
 
 int32_t CaptureAssistant::Stop()
