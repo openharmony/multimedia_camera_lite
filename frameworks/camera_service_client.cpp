@@ -70,6 +70,7 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
     switch (para->funcId) {
         case CAMERA_SERVER_GET_CAMERA_ABILITY: {
             CameraServiceClient *client = static_cast<CameraServiceClient*>(para->data);
+            IpcIoPopUint32(reply); // Pop supportProperities uint32_t
             // Get supported resolution.
             uint32_t listSize = IpcIoPopUint32(reply);
             uint32_t size;
