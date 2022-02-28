@@ -13,12 +13,17 @@ import("//build/lite/config/component/lite_component.gni")
 
 shared_library("camera_server") {
   sources = [
-    "./src/camera_device.cpp",
-    "./src/camera_server.cpp",
-    "./src/camera_service.cpp",
-    "./src/samgr_camera.cpp",
+    "impl/src/camera_device.cpp",
+    "impl/src/camera_service.cpp",
+    "server/src/camera_server.cpp",
+    "server/src/samgr_camera.cpp",
   ]
-  include_dirs = [ "./include" ]
+
+  include_dirs = [
+    "//foundation/multimedia/camera_lite/services/impl/include",
+    "//foundation/multimedia/camera_lite/services/server/include",
+  ]
+
   public_configs = [ ":external_camera_server_library" ]
   ldflags = [
     "-lstdc++",
