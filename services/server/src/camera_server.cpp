@@ -230,7 +230,8 @@ FrameConfig *DeserializeFrameConfig(IpcIo &io)
     streamCrop.y = IpcIoPopInt32(&io);
     streamCrop.w = IpcIoPopInt32(&io);
     streamCrop.h = IpcIoPopInt32(&io);
-	
+    fc->SetParameter(CAM_IMAGE_CROP_RECT, streamCrop);
+
     int32_t streamFormat = IpcIoPopInt32(&io);
     fc->SetParameter(CAM_IMAGE_FORMAT, streamFormat);
     MEDIA_INFO_LOG("streamFormat is %d", streamFormat);
