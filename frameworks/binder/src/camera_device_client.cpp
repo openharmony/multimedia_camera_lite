@@ -211,7 +211,7 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
     return ret_;
 }
 
-void CameraDeviceClient::StopLoopingCapture()
+void CameraDeviceClient::StopLoopingCapture(int32_t type)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
@@ -221,6 +221,7 @@ void CameraDeviceClient::StopLoopingCapture()
         return;
     }
     IpcIoPushString(&io, cameraId_.c_str());
+    IpcIoPushInt32(&io, type);
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_STOP_LOOPING_CAPTURE;
     para.data = this;

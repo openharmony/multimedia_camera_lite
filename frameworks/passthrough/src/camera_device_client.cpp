@@ -84,14 +84,14 @@ int32_t CameraDeviceClient::TriggerSingleCapture(FrameConfig &fc)
     return ret;
 }
 
-void CameraDeviceClient::StopLoopingCapture()
+void CameraDeviceClient::StopLoopingCapture(int32_t type)
 {
     CameraDevice *device_ = cameraService_->GetCameraDevice(cameraId_);
     if (device_ == nullptr) {
         MEDIA_ERR_LOG("device_ is null");
         return;
     }
-    return device_->StopLoopingCapture();
+    return device_->StopLoopingCapture(type);
 }
 
 void CameraDeviceClient::Release()
