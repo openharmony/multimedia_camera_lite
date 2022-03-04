@@ -136,7 +136,7 @@ int32_t SerilizeFrameConfig(IpcIo &io, FrameConfig &fc, uint32_t maxSurfaceNum)
     IpcIoPushInt32(&io, streamCrop.y);
     IpcIoPushInt32(&io, streamCrop.w);
     IpcIoPushInt32(&io, streamCrop.h);
-	
+
     int32_t format = -1;
     fc.GetParameter(CAM_IMAGE_FORMAT, format);
     IpcIoPushInt32(&io, format);
@@ -316,7 +316,7 @@ int32_t CameraDeviceClient::DeviceClientCallback(const IpcContext* context, void
         }
         case ON_CAMERA_STATUS_CHANGE: {
             int32_t ret = IpcIoPopInt32(io);
-            MEDIA_INFO_LOG("ON_CAMERA_STATUS_CHANGE : ret=%d.", ret);
+            MEDIA_INFO_LOG("ON_CAMERA_STATUS_CHANGE: ret=%d", ret);
             break;
         }
         default: {

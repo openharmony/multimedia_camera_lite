@@ -24,6 +24,19 @@ CameraService::CameraService() {}
 
 CameraService::~CameraService()
 {
+    auto iter = deviceMap_.begin();
+    while (iter != deviceMap_.end()) {
+        if (iter->second != nullptr) {
+            iter->second->StopLoopingCapture();
+            int32_t ret = HalCameraDeviceClose((uint32_t)std::atoi(iter->first.c_str()));
+            if (ret != 0) {
+                MEDIA_ERR_LOG("HalCameraDeviceClose failed. ret(%d)", ret);
+            }
+            deviceMap_.erase(iter++);
+        } else {
+            ++iter;
+        }
+    }
     int32_t ret = HalCameraDeinit();
     if (ret != 0) {
         MEDIA_ERR_LOG("HiCameraDeInit return failed ret(%d).", ret);
@@ -58,7 +71,7 @@ CameraAbility *CameraService::GetCameraAbility(std::string &cameraId)
     StreamCap *streamCap = nullptr;
     int32_t ret = HalCameraGetStreamCapNum(atoi(cameraId.c_str()), &streamCapNum);
     streamCap = new StreamCap[streamCapNum];
-    for (int pos = 0; pos < streamCapNum; pos++) {
+    for (uint32_t pos = 0; pos < streamCapNum; pos++) {
         streamCap[pos].type = CAP_DESC_ENUM;
     }
     ret = HalCameraGetStreamCap(atoi(cameraId.c_str()), streamCap, streamCapNum);

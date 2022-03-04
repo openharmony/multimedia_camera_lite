@@ -57,8 +57,8 @@ inline PicSize Convert2CodecSize(int32_t width, int32_t height)
 {
     struct SizeMap {
         PicSize res_;
-        uint32_t width_;
-        uint32_t height_;
+        int32_t width_;
+        int32_t height_;
     };
     static SizeMap sizeMap[] = {
         {RESOLUTION_CIF, 352, 288},         {RESOLUTION_360P, 640, 360},        {RESOLUTION_D1_PAL, 720, 576},
@@ -494,7 +494,7 @@ int32_t PreviewAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
     StreamAttrInitialize(&stream, surface, STREAM_PREVIEW, fc);
     int32_t ret = HalCameraStreamCreate(cameraId_, &stream, streamId);
     if (ret != MEDIA_OK) {
-        MEDIA_ERR_LOG(" creat Preview stream failed.");
+        MEDIA_ERR_LOG(" creat preview stream failed.");
         return MEDIA_ERR;
     }
     StreamInfo streamInfo;
@@ -521,7 +521,7 @@ int32_t PreviewAssistant::Start(uint32_t streamId)
 
     int32_t ret = HalCameraStreamOn(cameraId_, streamId);
     if (ret != MEDIA_OK) {
-        MEDIA_ERR_LOG("Preview  start failed. (ret=%d)", ret);
+        MEDIA_ERR_LOG("Preview start failed of HalCameraStreamOn.(ret=%d)", ret);
         Stop();
         return MEDIA_ERR;
     }
@@ -635,7 +635,9 @@ FREE_RESOURCE:
     CodecDestroy(vencHdl_);
     HalCameraStreamOff(cameraId_, streamId);
     HalCameraStreamDestroy(cameraId_, streamId);
+#ifndef ENABLE_PASSTHROUGH_MODE
     delete capSurface_;
+#endif
     capSurface_ = nullptr;
     state_ = LOOP_STOP;
 

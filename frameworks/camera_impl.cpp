@@ -102,7 +102,7 @@ int32_t CameraImpl::TriggerLoopingCapture(FrameConfig &fc)
         MEDIA_ERR_LOG("looping capture not support FRAME_CONFIG_CAPTURE");
         return MEDIA_ERR;
     }
-    FrameConfig *curFc = GetFrameConfig(fc.GetFrameConfigType());
+    FrameConfig *curFc = GetFrameConfig(type);
     if (curFc != nullptr) {
         MEDIA_ERR_LOG("Frame config of the input type is already existed.");
         return MEDIA_ERR;
