@@ -119,10 +119,12 @@ public:
     /**
      * @brief Stops looping-frame capture.
      *
+     * @param type Indicates the looping-frame capture type, such as FRAME_CONFIG_RECORD;
+     * Stop all looping-frame capture type if the value of type is -1.
      * @return Returns <b>true</b> if the looping-frame capture is successfully
      * stopped; returns <b>false</b> otherwise.
      */
-    virtual void StopLoopingCapture() {}
+    virtual void StopLoopingCapture(int32_t type) {}
 
     /**
      * @brief Starts single-frame capture. The frame parameters are set through

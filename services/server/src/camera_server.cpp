@@ -304,7 +304,9 @@ void CameraServer::StopLoopingCapture(IpcIo *req, IpcIo *reply)
         MEDIA_INFO_LOG("device_ is  null in camera_server.cpp!");
         return;
     }
-    device_->StopLoopingCapture();
+
+    int32_t type = IpcIoPopInt32(req);
+    device_->StopLoopingCapture(type);
 }
 
 void CameraServer::OnCameraStatusChange(int32_t ret, SvcIdentity *sid)

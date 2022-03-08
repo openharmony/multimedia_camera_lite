@@ -834,12 +834,30 @@ int32_t CameraDevice::TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId)
     return MEDIA_OK;
 }
 
-void CameraDevice::StopLoopingCapture()
+void CameraDevice::StopLoopingCapture(int32_t type)
 {
     MEDIA_INFO_LOG("Stop looping capture in camera_device.cpp");
-    previewAssistant_.Stop();
-    recordAssistant_.Stop();
-    callbackAssistant_.Stop();
+
+    switch (type) {
+        case FRAME_CONFIG_RECORD:
+            MEDIA_INFO_LOG("Stop recorder");
+            recordAssistant_.Stop();;
+            break;
+        case FRAME_CONFIG_PREVIEW:
+            MEDIA_INFO_LOG("Stop preview");
+            previewAssistant_.Stop();
+            break;
+        case FRAME_CONFIG_CALLBACK:
+            MEDIA_INFO_LOG("Stop callback");
+            callbackAssistant_.Stop();
+            break;
+        default:
+            MEDIA_INFO_LOG("Stop all");
+            previewAssistant_.Stop();
+            recordAssistant_.Stop();
+            callbackAssistant_.Stop();
+            break;
+    }
 }
 
 int32_t CameraDevice::TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId)

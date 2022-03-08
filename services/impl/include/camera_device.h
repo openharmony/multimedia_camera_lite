@@ -111,7 +111,7 @@ public:
     int32_t UnInitialize();
     int32_t SetCameraConfig();
     int32_t TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId);
-    void StopLoopingCapture();
+    void StopLoopingCapture(int32_t type);
     int32_t TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId);
     uint32_t GetCameraId();
 private:

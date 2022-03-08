@@ -37,7 +37,7 @@ public:
     void Release() override;
 
     int32_t TriggerLoopingCapture(FrameConfig &frameConfig) override;
-    void StopLoopingCapture() override;
+    void StopLoopingCapture(int32_t type) override;
     int32_t TriggerSingleCapture(FrameConfig &frameConfig) override;
 
     const CameraAbility *GetAbility();

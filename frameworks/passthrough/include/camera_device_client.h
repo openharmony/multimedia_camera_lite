@@ -32,7 +32,7 @@ public:
 
     int32_t SetCameraConfig(CameraConfig &cc);
     int32_t TriggerLoopingCapture(FrameConfig &fc);
-    void StopLoopingCapture();
+    void StopLoopingCapture(int32_t type);
     int32_t TriggerSingleCapture(FrameConfig &fc);
     void Release();
 

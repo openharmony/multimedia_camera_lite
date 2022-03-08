@@ -119,12 +119,12 @@ int32_t CameraImpl::TriggerLoopingCapture(FrameConfig &fc)
     return MEDIA_OK;
 }
 
-void CameraImpl::StopLoopingCapture()
+void CameraImpl::StopLoopingCapture(int32_t type = -1)
 {
     if (deviceClient_ == nullptr) {
         return;
     }
-    deviceClient_->StopLoopingCapture();
+    deviceClient_->StopLoopingCapture(type);
     if (config_ == nullptr) {
         return;
     }
@@ -138,12 +138,17 @@ void CameraImpl::StopLoopingCapture()
     }
 
     for (auto i : frameConfigs_) {
-        eventhdl->Post([fsc, this, i] {
-            FrameResult frameResult;
-            fsc->OnFrameFinished(*this, *i, frameResult);
-        });
+        if (i->GetFrameConfigType() == type || type == -1) {
+            eventhdl->Post([fsc, this, i] {
+                FrameResult frameResult;
+                fsc->OnFrameFinished(*this, *i, frameResult);
+            });
+        }
     }
-    frameConfigs_.clear();
+    /* clear all configs, if type == -1 */
+    if (type == -1) {
+        frameConfigs_.clear();
+    }
 }
 
 int32_t CameraImpl::TriggerSingleCapture(FrameConfig &fc)
