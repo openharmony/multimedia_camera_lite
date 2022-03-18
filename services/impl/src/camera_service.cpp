@@ -141,6 +141,7 @@ list<string> CameraService::GetCameraIdList()
     for (uint32_t pos = 0; pos < camNum; pos++) {
         cameraStrList.push_back(to_string(cameraList[pos]));
     }
+    delete[] cameraList;
     return cameraStrList;
 }
 
