@@ -71,21 +71,30 @@ shared_library("camera_lite") {
   ldflags += [
     "-lstdc++",
     "-lpthread",
-    "-lcodec",
-    "-lhdi_videodisplayer",
     "-L$ohos_root_path/$root_out_dir",
   ]
+  if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
+    ldflags += [
+      "-lcodec",
+      "-lhdi_videodisplayer",
+    ]
+  }
+
   cflags = [ "-fPIC" ]
   cflags += [ "-Wall" ]
   cflags_cc = cflags
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//base/security/permission/services/permission_lite/pms_client:pms_client",
-    "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
-    "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
     "//foundation/distributedschedule/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
+  if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
+    deps = [
+      "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
+      "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
+    ]
+  }
   public_deps = [
     "//foundation/graphic/surface:lite_surface",
     "//foundation/multimedia/media_lite/frameworks/recorder_lite:recorder_lite",
