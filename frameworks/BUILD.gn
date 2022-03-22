@@ -90,7 +90,7 @@ shared_library("camera_lite") {
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
-    deps = [
+    deps += [
       "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
       "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
     ]
