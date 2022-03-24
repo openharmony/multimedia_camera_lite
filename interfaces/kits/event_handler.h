@@ -43,8 +43,8 @@ public:
 private:
     struct EventObj {
         EventObj() = default;
-        virtual ~EventObj() {};
-        virtual void Exec() {};
+        virtual ~EventObj() {}
+        virtual void Exec() {}
     };
 
     std::queue<EventObj *> msgQ_;
@@ -55,7 +55,7 @@ private:
 
     template<typename F>
     struct PostTask : public EventObj {
-        PostTask(const F &f) : f_(f) {}
+        explicit PostTask(const F &f) : f_(f) {}
         const F f_;
         void Exec() override
         {

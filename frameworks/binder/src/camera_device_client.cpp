@@ -328,5 +328,5 @@ int32_t CameraDeviceClient::DeviceClientCallback(const IpcContext* context, void
     client->cameraClient_->ClearIpcMsg(ipcMsg);
     return MEDIA_OK;
 }
-}
-}
+} // namespace Media
+} // namespace OHOS

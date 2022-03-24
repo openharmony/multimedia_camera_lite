@@ -48,6 +48,10 @@ CameraServiceClient::~CameraServiceClient()
 
 void CameraServiceClient::InitCameraServiceClient(CameraServiceCallback *callback)
 {
+    if (callback == nullptr) {
+        MEDIA_INFO_LOG("Camera client initialize fail,empty callback.");
+        return;
+    }
     cameraServiceCb_ = callback;
     if (cameraClient_->InitCameraClient()) {
         MEDIA_INFO_LOG("Camera client initialize success.");
@@ -311,5 +315,5 @@ void CameraServiceClient::CreateCamera(string cameraId)
         MEDIA_ERR_LOG("Create camera ipc  transmission failed. (ret=%d)", ans);
     }
 }
-}
-}
+} // namespace Media
+} // namespace OHOS

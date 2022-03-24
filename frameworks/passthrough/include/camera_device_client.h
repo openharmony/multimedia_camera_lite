@@ -45,6 +45,6 @@ private:
     CameraConfig *cc_ = nullptr;
     CameraService *cameraService_ = nullptr;
 };
-}
-}
+} // namespace Media
+} // namespace OHOS
 #endif // CAMERA_DEVICE_CLIENT_H
