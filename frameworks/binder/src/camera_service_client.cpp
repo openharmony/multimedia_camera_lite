@@ -48,6 +48,10 @@ CameraServiceClient::~CameraServiceClient()
 
 void CameraServiceClient::InitCameraServiceClient(CameraServiceCallback *callback)
 {
+    if (callback == nullptr) {
+        MEDIA_INFO_LOG("Camera client initialize fail,empty callback.");
+        return;
+    }
     cameraServiceCb_ = callback;
     if (cameraClient_->InitCameraClient()) {
         MEDIA_INFO_LOG("Camera client initialize success.");
@@ -78,7 +82,7 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
             for (uint32_t i = 0; i < listSize; i++) {
                 CameraPicSize *cameraPicSize = static_cast<CameraPicSize*>(IpcIoPopFlatObj(reply, &size));
                 if (cameraPicSize != nullptr) {
-                    supportSizeList.emplace_back(*cameraPicSize);    
+                    supportSizeList.emplace_back(*cameraPicSize);
                 }
             }
             // Get supported AfModes.
@@ -311,5 +315,5 @@ void CameraServiceClient::CreateCamera(string cameraId)
         MEDIA_ERR_LOG("Create camera ipc  transmission failed. (ret=%d)", ans);
     }
 }
-}
-}
+} // namespace Media
+} // namespace OHOS

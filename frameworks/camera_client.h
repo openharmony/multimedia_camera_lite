@@ -31,6 +31,6 @@ private:
     ~CameraClient() {}
     IClientProxy *proxy_ = nullptr;
 };
-}
-}
+} // namespace Media
+} // namespace OHOS
 #endif // CAMERA_CLIENT_H

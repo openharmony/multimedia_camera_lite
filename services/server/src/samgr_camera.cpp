@@ -47,6 +47,9 @@ static const char* GetName(Service* service)
 
 static BOOL Initialize(Service* service, Identity identity)
 {
+    if (service == nullptr) {
+        return FALSE;
+    }
     CameraService* example = (CameraService*)service;
     example->identity = identity;
     MEDIA_INFO_LOG("Initialize(%s)! Identity<%d, %d, %p>", Media::SERVICE_NAME,
@@ -56,6 +59,9 @@ static BOOL Initialize(Service* service, Identity identity)
 
 static BOOL MessageHandle(Service* service, Request* msg)
 {
+    if (service == nullptr || msg == nullptr) {
+        return FALSE;
+    }
     MEDIA_INFO_LOG("MessageHandle(%s)! Request<%d, %d, %p>",
         service->GetName(service), msg->msgId, msg->msgValue, msg->data);
     return FALSE;

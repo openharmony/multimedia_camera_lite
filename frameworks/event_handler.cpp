@@ -42,6 +42,9 @@ bool EventHandler::IsRunning()
 
 void EventHandler::EventDispatch(EventHandler *hdl)
 {
+    if (hdl == nullptr) {
+        return;
+    }
     std::unique_lock<std::mutex> lock(hdl->mtx_);
     hdl->running_ = true;
     while (hdl->running_) {

@@ -95,6 +95,6 @@ public:
         return -1;
     }
 };
-}
-}
+} // namespace Media
+} // namespace OHOS
 #endif // OHOS_CAMERA_INFO_H

@@ -75,7 +75,7 @@ class PreviewAssistant : public DeviceAssistant {
 public:
     int32_t SetFrameConfig(FrameConfig &fc, uint32_t *streamId) override;
     int32_t Start(uint32_t streamId) override;
-    virtual int32_t Stop() override;
+    int32_t Stop() override;
     Surface *capSurface_ = nullptr;
 private:
     pthread_t threadId;
@@ -85,7 +85,7 @@ private:
 class CaptureAssistant : public DeviceAssistant {
     int32_t SetFrameConfig(FrameConfig &fc, uint32_t *streamId) override;
     int32_t Start(uint32_t streamId) override;
-    virtual int32_t Stop() override;
+    int32_t Stop() override;
     CODEC_HANDLETYPE vencHdl_ = nullptr;
     Surface *capSurface_ = nullptr;
 };
@@ -94,7 +94,7 @@ class CallbackAssistant : public DeviceAssistant {
 public:
     int32_t SetFrameConfig(FrameConfig &fc, uint32_t *streamId) override;
     int32_t Start(uint32_t streamId) override;
-    virtual int32_t Stop() override;
+    int32_t Stop() override;
     Surface *capSurface_ = nullptr;
 private:
     pthread_t threadId;
@@ -104,7 +104,7 @@ private:
 class CameraDevice {
 public:
     CameraDevice();
-    CameraDevice(uint32_t cameraId);
+    explicit CameraDevice(uint32_t cameraId);
     virtual ~CameraDevice();
 
     int32_t Initialize();

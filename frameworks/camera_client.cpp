@@ -72,5 +72,5 @@ void CameraClient::ClearIpcMsg(void *ipcMsg)
         FreeBuffer(nullptr, ipcMsg);
     }
 }
-}
-}
+} // namespace Media
+} // namespace OHOS
