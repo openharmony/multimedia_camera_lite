@@ -37,7 +37,6 @@ private:
     std::set<uint32_t> supportProperties_;
 };
 } // namespace Media
-} // namespace
-
+} // namespace OHOS
 
 #endif // OHOS_CAMERA_ABILITY_IMPL_H

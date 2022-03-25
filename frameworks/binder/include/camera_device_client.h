@@ -56,6 +56,6 @@ private:
     SvcIdentity sid_;
     int32_t ret_ = 0;
 };
-}
-}
+} // namespace Media
+} // namespace OHOS
 #endif // CAMERA_DEVICE_CLIENT_H

@@ -58,6 +58,9 @@ void CameraImpl::Configure(CameraConfig &config)
         return;
     }
 
+    if (deviceClient_ == nullptr) {
+        return;
+    }
     int32_t ret = deviceClient_->SetCameraConfig(config);
     if (ret != MEDIA_OK) {
         MEDIA_ERR_LOG("Set camera config failed in cameraImpl.");

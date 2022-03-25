@@ -259,6 +259,9 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
 
 static int32_t CopyCodecOutput(void *dst, uint32_t *size, OutputInfo *buffer)
 {
+    if (dst == nullptr || size == nullptr || buffer == nullptr) {
+        return MEDIA_ERR;
+    }
     char *dstBuf = reinterpret_cast<char *>(dst);
     for (uint32_t i = 0; i < buffer->bufferCnt; i++) {
         uint32_t packSize = buffer->buffers[i].length - buffer->buffers[i].offset;
@@ -584,6 +587,10 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
     int32_t retCode = MEDIA_ERR;
     state_ = LOOP_LOOPING;
     HalCameraStreamOn(cameraId_, streamId);
+    if (capSurface_ == nullptr) {
+        MEDIA_ERR_LOG("Create capture venc failed.");
+        return retCode;
+    }
     int pictures = capSurface_->GetQueueSize();
     int32_t ret = CodecStart(vencHdl_);
     if (ret != 0) {

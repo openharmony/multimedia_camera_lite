@@ -74,5 +74,5 @@ void CameraServiceClient::CreateCamera(string cameraId)
         static_cast<CameraServiceCallback::CameraStauts>(cameraService_->CreateCamera(cameraId));
     cameraServiceCb_->OnCameraStatusChange(cameraId, cameraStatus);
 }
-}
-}
+} // namespace Media
+} // namespace OHOS

@@ -70,7 +70,7 @@ public:
      * @param type Indicates the frame configuration mode, which can be <b>FRAME_CONFIG_PREVIEW</b>,
      * @<b>FRAME_CONFIG_RECORD</b>, or <b>FRAME_CONFIG_CAPTURE</b>.
      */
-    FrameConfig(int32_t type);
+    explicit FrameConfig(int32_t type);
 
     /**
      * @brief A destructor used to delete the <b>FrameConfig</b> instance.
