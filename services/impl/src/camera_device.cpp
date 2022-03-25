@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -278,7 +278,7 @@ static void StreamAttrInitialize(StreamAttr *streamAttr, Surface *surface,
     if (streamAttr == nullptr || surface == nullptr) {
         return;
     }
-    memset_s(streamAttr, sizeof(StreamAttr), 0, sizeof(StreamAttr));
+    (void)memset_s(streamAttr, sizeof(StreamAttr), 0, sizeof(StreamAttr));
     streamAttr->type = streamType;
     fc.GetParameter(CAM_IMAGE_FORMAT, streamAttr->format);
     streamAttr->width = surface->GetWidth();

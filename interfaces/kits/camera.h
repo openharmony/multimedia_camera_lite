@@ -75,7 +75,7 @@ public:
 
     /**
      * @brief Obtains the camera configuration.
-     *        You can use the obtained <b>CameraConfig</b> object to configure the
+     * You can use the obtained <b>CameraConfig</b> object to configure the
      * camera.
      * @return Returns the pointer to the <b>CameraConfig</b> object if obtained;
      * returns <b>NULL</b> otherwise.

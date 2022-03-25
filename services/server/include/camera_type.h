@@ -51,6 +51,6 @@ struct CallBackPara {
 };
 const char SERVICE_NAME[] = "CameraServer";
 static const int32_t DEFAULT_IPC_SIZE = 300;
-}
-}
+} // namespace Media
+} // namespace OHOS
 #endif
