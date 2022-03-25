@@ -206,7 +206,7 @@ CameraAbility *CameraServiceClient::GetCameraAbility(string &cameraId)
     if (iter != deviceAbilityMap_.end()) {
         return iter->second;
     }
-    MEDIA_ERR_LOG("Get cameraAbility of camera %s from cameraService failded", cameraId.c_str());
+    MEDIA_ERR_LOG("Get cameraAbility of camera %s from cameraService failed", cameraId.c_str());
     return nullptr;
 }
 
@@ -234,7 +234,7 @@ CameraInfo *CameraServiceClient::GetCameraInfo(string &cameraId)
     if (iter != deviceInfoMap_.end()) {
         return iter->second;
     }
-    MEDIA_ERR_LOG("Get cameraInfo of camera %s from cameraService failded", cameraId.c_str());
+    MEDIA_ERR_LOG("Get cameraInfo of camera %s from cameraService failed", cameraId.c_str());
     return nullptr;
 }
 
