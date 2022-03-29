@@ -52,7 +52,7 @@ struct CallBackPara {
     void* cameraConfig;
 };
 const char SERVICE_NAME[] = "CameraServer";
-static const int32_t DEFAULT_IPC_SIZE = 100;
+static const int32_t DEFAULT_IPC_SIZE = 300;
 }
 }
 #endif
