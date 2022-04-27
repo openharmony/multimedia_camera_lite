@@ -24,8 +24,6 @@ public:
     static CameraClient *GetInstance();
     bool InitCameraClient();
     IClientProxy *GetIClientProxy();
-    void ClearIpcMsg(void *ipcMsg);
-
 private:
     CameraClient() {}
     ~CameraClient() {}

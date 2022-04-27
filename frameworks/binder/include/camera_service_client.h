@@ -15,8 +15,7 @@
 #ifndef CAMERA_SERVICE_CLIENT_H
 #define CAMERA_SERVICE_CLIENT_H
 
-#include "liteipc_adapter.h"
-#include "serializer.h"
+#include "ipc_skeleton.h"
 #include "camera_ability.h"
 #include "camera_info_impl.h"
 #include "iproxy_client.h"
@@ -36,7 +35,7 @@ public:
     CameraAbility *GetCameraAbility(std::string &cameraId);
     CameraInfo *GetCameraInfo(std::string &cameraId);
     void CreateCamera(std::string cameraId);
-    static int32_t ServiceClientCallback(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
+    static int32_t ServiceClientCallback(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
     uint8_t GetCameraModeNum();
     int32_t SetCameraMode(uint8_t modeIndex);
 
@@ -54,6 +53,7 @@ private:
     CallBackPara *para_ = nullptr;
     uint8_t cameraModeNum = 0;
     int32_t ret_ = 0;
+    IpcObjectStub objectStub_;
 };
 } // namespace Media
 } // namespace OHOS

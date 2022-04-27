@@ -16,8 +16,7 @@
 #define CAMERA_SERVER_H
 
 #include "camera_service.h"
-#include "liteipc_adapter.h"
-#include "serializer.h"
+#include "ipc_skeleton.h"
 #include "camera_ability.h"
 
 namespace OHOS {

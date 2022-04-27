@@ -17,7 +17,7 @@
 #include "media_log.h"
 #include "samgr_lite.h"
 #include "camera_type.h"
-#include "liteipc_adapter.h"
+#include "ipc_skeleton.h"
 
 #include <cstdio>
 
@@ -57,20 +57,5 @@ IClientProxy *CameraClient::GetIClientProxy()
 {
     return proxy_;
 }
-
-void CameraClient::ClearIpcMsg(void *ipcMsg)
-{
-    if (ipcMsg == nullptr) {
-        return;
-    }
-    uint32_t flag = 0;
-    GetFlag(ipcMsg, &flag);
-    if (flag == LITEIPC_FLAG_DEFAULT) {
-        // send reply to client, the second param is reply
-        SendReply(nullptr, ipcMsg, nullptr);
-    } else {
-        FreeBuffer(nullptr, ipcMsg);
-    }
 }
-} // namespace Media
-} // namespace OHOS
+}
