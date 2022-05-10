@@ -20,7 +20,7 @@
 #include "camera_client.h"
 #include "iproxy_client.h"
 #include "media_log.h"
-#include "liteipc_adapter.h"
+#include "ipc_skeleton.h"
 #include "camera_type.h"
 
 #include <cstdint>
@@ -44,8 +44,8 @@ public:
     void SetCameraId(std::string &cameraId);
     void SetCameraImpl(CameraImpl *cameraImpl);
     void SetCameraCallback();
-    static int32_t SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
-    static int32_t DeviceClientCallback(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
+    static int32_t SurfaceRequestHandler(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
+    static int32_t DeviceClientCallback(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
 private:
     CameraDeviceClient();
     CameraClient *cameraClient_ = nullptr;
@@ -55,6 +55,7 @@ private:
     CallBackPara *para_ = nullptr;
     SvcIdentity sid_;
     int32_t ret_ = 0;
+    IpcObjectStub objectStub_;
 };
 } // namespace Media
 } // namespace OHOS

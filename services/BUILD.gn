@@ -64,11 +64,11 @@ config("external_camera_server_library") {
     "//foundation/distributedschedule/samgr_lite/interfaces/kits/registry",
     "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
     "//foundation/distributedschedule/samgr_lite/interfaces/kits/communication/broadcast",
-    "//foundation/communication/ipc_lite/interfaces/kits",
     "//drivers/peripheral/codec/interfaces/include",
     "//foundation/multimedia/utils/lite/hals",
     "//foundation/multimedia/camera_lite/frameworks",
     "//drivers/peripheral/display/interfaces/include",
     "//drivers/peripheral/base",
+    "//foundation/communication/ipc/interfaces/innerkits/c/ipc/include/",
   ]
 }

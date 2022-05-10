@@ -52,7 +52,7 @@ shared_library("camera_lite") {
       "//foundation/distributedschedule/samgr_lite/interfaces/kits/registry",
       "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
       "//foundation/distributedschedule/samgr_lite/interfaces/kits/communication/broadcast",
-      "//foundation/communication/ipc_lite/interfaces/kits",
+      "//foundation/communication/ipc/interfaces/innerkits/c/ipc/include/",
     ]
     ldflags = []
   }
@@ -86,6 +86,7 @@ shared_library("camera_lite") {
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//base/security/permission/services/permission_lite/pms_client:pms_client",
+    "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
     "//foundation/distributedschedule/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
