@@ -28,6 +28,8 @@
 using namespace std;
 namespace OHOS {
 namespace Media {
+static IpcObjectStub objectStub_;
+
 CameraDeviceClient *CameraDeviceClient::GetInstance()
 {
     static CameraDeviceClient client;
