@@ -55,7 +55,6 @@ private:
     CallBackPara *para_ = nullptr;
     SvcIdentity sid_;
     int32_t ret_ = 0;
-    IpcObjectStub objectStub_;
 };
 } // namespace Media
 } // namespace OHOS
