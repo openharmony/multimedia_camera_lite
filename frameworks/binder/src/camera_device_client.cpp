@@ -218,6 +218,7 @@ void CameraDeviceClient::StopLoopingCapture(int32_t type)
         return;
     }
     WriteString(&io, cameraId_.c_str());
+    WriteInt32(&io, type);
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_STOP_LOOPING_CAPTURE;
     para.data = this;

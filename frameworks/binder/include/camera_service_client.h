@@ -53,7 +53,6 @@ private:
     CallBackPara *para_ = nullptr;
     uint8_t cameraModeNum = 0;
     int32_t ret_ = 0;
-    IpcObjectStub objectStub_;
 };
 } // namespace Media
 } // namespace OHOS
