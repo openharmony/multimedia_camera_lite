@@ -1,0 +1,41 @@
+{
+    "name": "@ohos/camera_lite",
+    "description": "Camera service for mini and small system.",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "foundation/multimedia/camera_lite"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "camera_lite",
+        "subsystem": "multimedia",
+        "syscap": [],
+        "features": [],
+        "adapted_system_type": [
+            "mini",
+            "small"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [
+                "hilog_lite",
+                "permission",
+                "surface"
+            ],
+            "third_party": [
+                "bounds_checking_function"
+            ]
+        },
+        "build": {
+            "sub_component": [
+                "//foundation/multimedia/camera_lite/frameworks:camera_lite"
+            ],
+            "inner_kits": [],
+            "test": []
+        }
+    }
+}
