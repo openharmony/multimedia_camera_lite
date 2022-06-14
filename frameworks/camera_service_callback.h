@@ -25,7 +25,7 @@ public:
     CameraServiceCallback() = default;
     ~CameraServiceCallback() = default;
 
-    enum CameraStauts {
+    enum CameraStatus {
         CAMERA_STATUS_AVAIL,
         CAMERA_STATUS_UNAVAIL,
         CAMERA_STATUS_CREATED,
@@ -33,7 +33,7 @@ public:
         CAMERA_STATUS_CLOSE,
     };
     virtual void OnCameraServiceInitialized(std::list<std::string> &availCameraIdList) {}
-    virtual void OnCameraStatusChange(std::string &cameraId, CameraStauts status) {}
+    virtual void OnCameraStatusChange(std::string &cameraId, CameraStatus status) {}
 };
 } // namespace Media
 } // namespace OHOS

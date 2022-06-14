@@ -46,7 +46,7 @@ public:
         }
     }
 
-    void OnCameraStatusChange(string &cameraId, CameraStauts status) override
+    void OnCameraStatusChange(string &cameraId, CameraStatus status) override
     {
         auto p = cameraMapCache_.find(cameraId);
         switch (status) {
