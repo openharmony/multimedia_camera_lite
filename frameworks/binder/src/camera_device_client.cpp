@@ -95,9 +95,9 @@ int32_t CameraDeviceClient::SetCameraConfig(CameraConfig &cc)
     para_->data = this;
     para_->cameraConfig = &cc;
     CallBackPara para = {};
-    para.funcId = CAEMRA_SERVER_SET_CAMERA_CONFIG;
+    para.funcId = CAMERA_SERVER_SET_CAMERA_CONFIG;
     para.data = this;
-    uint32_t ret = proxy_->Invoke(proxy_, CAEMRA_SERVER_SET_CAMERA_CONFIG, &io, &para, Callback);
+    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_CONFIG, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Set camera config ipc transmission failed. (ret=%d)", ret);
         return MEDIA_ERR;

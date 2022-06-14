@@ -53,7 +53,7 @@ void CameraServer::CameraServerRequestHandle(int funcId, void *origin, IpcIo *re
         case CAMERA_SERVER_CLOSE_CAMERA:
             CameraServer::GetInstance()->CloseCamera(req, reply);
             break;
-        case CAEMRA_SERVER_SET_CAMERA_CONFIG:
+        case CAMERA_SERVER_SET_CAMERA_CONFIG:
             CameraServer::GetInstance()->SetCameraConfig(req, reply);
             break;
         case CAMERA_SERVER_TRIGGER_LOOPING_CAPTURE:
