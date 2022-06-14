@@ -76,7 +76,7 @@ typedef enum {
     CAM_IMAGE_INVERT_MODE,
     /* Image CROP_RECT */
     CAM_IMAGE_CROP_RECT,
-    /* Only vaild when frameConfigType is callback*/
+    /* Only valid when frameConfigType is callback*/
     CAM_IMAGE_FORMAT,
     /* Auto foucue mode */
     CAM_AF_MODE,
