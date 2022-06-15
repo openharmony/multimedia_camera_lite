@@ -78,7 +78,7 @@ public:
     /**
      * @brief Obtains the camera type.
      *
-     * @return Returns the caemra type, whick can be {@link CameraType}.
+     * @return Returns the camera type, whick can be {@link CameraType}.
      */
     virtual int32_t GetCameraType() const
     {
@@ -88,7 +88,7 @@ public:
     /**
      * @brief Obtains the camera type.
      *
-     * @return Returns the caemra type, whick can be {@link FacingType}.
+     * @return Returns the camera type, whick can be {@link FacingType}.
      */
     virtual int32_t GetCameraFacingType() const
     {
