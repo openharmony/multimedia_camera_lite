@@ -266,8 +266,8 @@ int32_t CameraServiceClient::ServiceClientCallback(uint32_t code, IpcIo *data, I
         case ON_CAMERA_STATUS_CHANGE: {
             int status;
             ReadInt32(data, &status);
-            CameraServiceCallback::CameraStauts cameraStatus =
-                static_cast<CameraServiceCallback::CameraStauts>(status);
+            CameraServiceCallback::CameraStatus cameraStatus =
+                static_cast<CameraServiceCallback::CameraStatus>(status);
             string cameraId = para->cameraId;
             client->cameraServiceCb_->OnCameraStatusChange(cameraId, cameraStatus);
             break;

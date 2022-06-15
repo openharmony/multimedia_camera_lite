@@ -70,8 +70,8 @@ int32_t CameraServiceClient::SetCameraMode(uint8_t modeIndex)
 
 void CameraServiceClient::CreateCamera(string cameraId)
 {
-    CameraServiceCallback::CameraStauts cameraStatus =
-        static_cast<CameraServiceCallback::CameraStauts>(cameraService_->CreateCamera(cameraId));
+    CameraServiceCallback::CameraStatus cameraStatus =
+        static_cast<CameraServiceCallback::CameraStatus>(cameraService_->CreateCamera(cameraId));
     cameraServiceCb_->OnCameraStatusChange(cameraId, cameraStatus);
 }
 } // namespace Media
