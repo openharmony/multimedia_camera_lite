@@ -41,7 +41,7 @@ shared_library("camera_server") {
     "//base/security/permission/services/permission_lite/pms_client:pms_client",
     "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
     "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
-    "//foundation/distributedschedule/samgr_lite/samgr:samgr",
+    "//foundation/systemabilitymgr/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   public_deps = [
@@ -61,9 +61,9 @@ config("external_camera_server_library") {
     "//foundation/multimedia/utils/lite/hals",
     "//base/security/permission/interfaces/kits/permission_lite",
     "//foundation/multimedia/services/camera_lite/include",
-    "//foundation/distributedschedule/samgr_lite/interfaces/kits/registry",
-    "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
-    "//foundation/distributedschedule/samgr_lite/interfaces/kits/communication/broadcast",
+    "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/registry",
+    "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/samgr",
+    "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/communication/broadcast",
     "//drivers/peripheral/codec/interfaces/include",
     "//foundation/multimedia/utils/lite/hals",
     "//foundation/multimedia/camera_lite/frameworks",

@@ -49,9 +49,9 @@ shared_library("camera_lite") {
     include_dirs = [
       "//foundation/multimedia/camera_lite/frameworks/binder/include",
       "//utils/native/lite/include",
-      "//foundation/distributedschedule/samgr_lite/interfaces/kits/registry",
-      "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
-      "//foundation/distributedschedule/samgr_lite/interfaces/kits/communication/broadcast",
+      "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/registry",
+      "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/samgr",
+      "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/communication/broadcast",
       "//foundation/communication/ipc/interfaces/innerkits/c/ipc/include/",
     ]
     ldflags = []
@@ -87,7 +87,7 @@ shared_library("camera_lite") {
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//base/security/permission/services/permission_lite/pms_client:pms_client",
     "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
-    "//foundation/distributedschedule/samgr_lite/samgr:samgr",
+    "//foundation/systemabilitymgr/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
