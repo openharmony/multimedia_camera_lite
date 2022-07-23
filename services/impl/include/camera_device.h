@@ -35,7 +35,7 @@ enum LoopState {
     LOOP_STOP,
     LOOP_ERROR,
 };
-const int32_t RECORDER_MAX_NUM = 2;
+const int32_t RECODER_MAX_NUM = 2;
 class DeviceAssistant {
 public:
     std::thread *thrd_ = nullptr;
@@ -58,17 +58,21 @@ public:
     }
 };
 
+typedef struct {
+    CODEC_HANDLETYPE vencHdl_;
+    list<Surface *> vencSurfaces_;
+} CodecDesc;
+
 class RecordAssistant : public DeviceAssistant {
 public:
     int32_t SetFrameConfig(FrameConfig &fc, uint32_t *streamId) override;
     int32_t Start(uint32_t streamId) override;
     int32_t Stop() override;
-
-    vector<CODEC_HANDLETYPE> vencHdls_;
-    vector<list<Surface *>> vencSurfaces_;
-    static int OnVencBufferAvailble(UINTPTR hComponent, UINTPTR dataIn, OutputInfo *buffer);
+    void ClearFrameConfig();
+    vector<CodecDesc> codecInfo_;
+    static int OnVencBufferAvailble(UINTPTR userDate, CodecBuffer *outBuf, int32_t *acquireFd);
     static CodecCallback recordCodecCb_;
-    int32_t streamIdNum_[RECORDER_MAX_NUM] = {-1, -1};
+    int32_t streamIdNum_[RECODER_MAX_NUM] = {-1, -1};
 };
 
 class PreviewAssistant : public DeviceAssistant {
@@ -111,7 +115,7 @@ public:
     int32_t UnInitialize();
     int32_t SetCameraConfig();
     int32_t TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId);
-    void StopLoopingCapture(int32_t type);
+    void StopLoopingCapture();
     int32_t TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId);
     uint32_t GetCameraId();
 private:

@@ -305,7 +305,7 @@ void CameraServer::StopLoopingCapture(IpcIo *req, IpcIo *reply)
 
     int32_t type;
     ReadInt32(req, &type);
-    device_->StopLoopingCapture(type);
+    device_->StopLoopingCapture();
 }
 
 void CameraServer::OnCameraStatusChange(int32_t ret, SvcIdentity *sid)
