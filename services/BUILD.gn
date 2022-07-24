@@ -38,7 +38,7 @@ shared_library("camera_server") {
   cflags_cc = cflags
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//base/security/permission/services/permission_lite/pms_client:pms_client",
+    "//base/security/permission_lite/services/pms_client:pms_client",
     "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
     "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
     "//foundation/distributedschedule/samgr_lite/samgr:samgr",
@@ -59,7 +59,7 @@ config("external_camera_server_library") {
     "//foundation/multimedia/utils/lite/interfaces/kits",
     "//drivers/peripheral/format/interfaces/include",
     "//foundation/multimedia/utils/lite/hals",
-    "//base/security/permission/interfaces/kits/permission_lite",
+    "//base/security/permission_lite/interfaces/kits",
     "//foundation/multimedia/services/camera_lite/include",
     "//foundation/distributedschedule/samgr_lite/interfaces/kits/registry",
     "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",

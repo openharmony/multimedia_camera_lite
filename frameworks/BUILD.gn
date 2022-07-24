@@ -63,7 +63,7 @@ shared_library("camera_lite") {
     "//foundation/multimedia/camera_lite/services/impl/include",
     "//foundation/multimedia/camera_lite/services/server/include",
     "//foundation/multimedia/utils/lite/interfaces/kits",
-    "//base/security/permission/interfaces/kits/permission_lite",
+    "//base/security/permission_lite/interfaces/kits",
   ]
 
   public_configs = [ ":camera_client_external_library_config" ]
@@ -85,7 +85,7 @@ shared_library("camera_lite") {
   cflags_cc = cflags
   deps = [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//base/security/permission/services/permission_lite/pms_client:pms_client",
+    "//base/security/permission_lite/services/pms_client:pms_client",
     "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
     "//foundation/distributedschedule/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
