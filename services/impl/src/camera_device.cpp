@@ -81,13 +81,13 @@ static int32_t SetVencSource(CODEC_HANDLETYPE codecHdl, uint32_t deviceId)
 static uint32_t GetDefaultBitrate(uint32_t width, uint32_t height)
 {
     uint32_t rate; /* auto calc bitrate if set 0 */
-    if (width * height == 640 * 360) {
+    if (width * height == 640 * 360) { /* 640,width  360,height */
         rate = 0x800; /* 2048kbps */
-    } else if (width * height == 1280 * 720) {
+    } else if (width * height == 1280 * 720) { /* 1280,width  720,height */
         rate = 0x400; /* 1024kbps */
-    } else if (width * height >= 2560 * 1440 && width * height <= 2716 * 1524) {
+    } else if (width * height >= 2560 * 1440 && width * height <= 2716 * 1524) { /* 2560,2716 width  1440,1524,height */
         rate = 0x1800; /* 6144kbps */
-    } else if (width * height == 3840 * 2160 || width * height == 4096 * 2160) {
+    } else if (width * height == 3840 * 2160 || width * height == 4096 * 2160) { /* 3840,4096 width  2160,height */
         rate = 0xa000; /* 40960kbps */
     } else {
         rate = 0x0;
@@ -249,7 +249,7 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
         param[paramIndex].val = &frameRate;
         param[paramIndex].size = sizeof(uint32_t);
         paramIndex++;
-	}
+    }
 
     int32_t ret = CodecCreateByType(domainKind, codecMime, codecHdl);
     if (ret != 0) {
@@ -286,7 +286,7 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
     return MEDIA_OK;
 }
 
-static int32_t CopyCodecOutput(void *dst, uint32_t *size, CodecBuffer *buffer)
+static int32_t CopyCodecOutput(uint8_t *dst, uint32_t *size, CodecBuffer *buffer)
 {
     if (dst == nullptr || size == nullptr || buffer == nullptr) {
         return MEDIA_ERR;
@@ -401,7 +401,7 @@ void RecordAssistant::ClearFrameConfig()
     for (uint32_t i = 0; i < codecInfo_.size(); i++) {
         CodecStop(codecInfo_[i].vencHdl_);
         CodecDestroy(codecInfo_[i].vencHdl_);
-	}
+    }
     codecInfo_.clear();
 }
 
@@ -650,20 +650,21 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
         return MEDIA_ERR;
     }
 
-    CodecBuffer* outInfo = (CodecBuffer*)new char[sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3];
+    CodecBuffer* outInfo = (CodecBuffer*)new char[sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3]; /* 3 buffCnt */
     if (outInfo == NULL) {
         MEDIA_ERR_LOG("malloc Dequeue buffer failed!");
         return MEDIA_ERR;
     }
-	SurfaceBuffer *surfaceBuf = NULL;
+    SurfaceBuffer *surfaceBuf = NULL;
     do {
-        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3, 0, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3) != MEDIA_OK) {
+        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3, 0,
+		    sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3) != MEDIA_OK) { /* 3 buffCnt */
             MEDIA_ERR_LOG("memset_s failed!");
             delete(outInfo);
             return MEDIA_ERR;
         }
         outInfo->bufferCnt = 3; /* 3 buffCnt */
-		ret = CodecDequeueOutput(vencHdl_, 0, nullptr, outInfo);
+        ret = CodecDequeueOutput(vencHdl_, 0, nullptr, outInfo);
         if (ret != 0) {
             MEDIA_ERR_LOG("Dequeue capture frame failed.(ret=%d)", ret);
             break;
@@ -899,7 +900,7 @@ int32_t CameraDevice::TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId)
             MEDIA_ERR_LOG("Start looping capture failed (ret=%d)", ret);
             return MEDIA_ERR;
         }
-    } while(--count);
+    } while (--count);
     return MEDIA_OK;
 }
 
