@@ -58,10 +58,10 @@ public:
     }
 };
 
-typedef struct {
+struct CodecDesc {
     CODEC_HANDLETYPE vencHdl_;
     list<Surface *> vencSurfaces_;
-} CodecDesc;
+};
 
 class RecordAssistant : public DeviceAssistant {
 public:
@@ -69,9 +69,11 @@ public:
     int32_t Start(uint32_t streamId) override;
     int32_t Stop() override;
     void ClearFrameConfig();
-    vector<CodecDesc> codecInfo_;
     static int OnVencBufferAvailble(UINTPTR userDate, CodecBuffer *outBuf, int32_t *acquireFd);
     static CodecCallback recordCodecCb_;
+private:
+    int32_t SetFrameConfigEnd(int32_t result);
+    vector<CodecDesc> codecInfo_;
     int32_t streamIdNum_[RECODER_MAX_NUM] = {-1, -1};
 };
 

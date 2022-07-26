@@ -191,78 +191,25 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
     return MEDIA_OK;
 }
 
-static void CameraJpegEncSetParam(Param &param, uint32_t maxParamNum, uint32_t &paramIndex)
+static void FillParam(Param &param, ParamKey key, uint8_t *data, uint32_t size)
 {
-    (void) maxParamNum;
-    CodecType domainKind = VIDEO_ENCODER;
-    param[paramIndex].key = KEY_CODEC_TYPE;
-    param[paramIndex].val = &domainKind;
-    param[paramIndex].size = sizeof(CodecType);
-    paramIndex++;
-
-    AvCodecMime codecMime = ConverFormat(stream.format);
-    param[paramIndex].key = KEY_MIMETYPE;
-    param[paramIndex].val = &codecMime;
-    param[paramIndex].size = sizeof(AvCodecMime);
-    paramIndex++;
-
-    auto surfaceList = fc.GetSurfaces();
-    Surface *surface = surfaceList.front();
-
-    std::cout<<"------2: CameraCreateJpegEnc: surface width and height: "
-        <<surface->GetWidth()<<", "<<surface->GetHeight()<<std::endl;
-
-    uint32_t width = surface->GetWidth();
-    MEDIA_DEBUG_LOG("width=%d", width);
-    param[paramIndex].key = KEY_VIDEO_WIDTH;
-    param[paramIndex].val = &width;
-    param[paramIndex].size = sizeof(uint32_t);
-    paramIndex++;
-
-    uint32_t height = surface->GetHeight();
-    MEDIA_DEBUG_LOG("height=%d", height);
-    param[paramIndex].key = KEY_VIDEO_HEIGHT;
-    param[paramIndex].val = &height;
-    param[paramIndex].size = sizeof(uint32_t);
-    paramIndex++;
+    param.key = key;
+    param.val = data;
+    param.size = size;
 }
 
-static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t srcDev, CODEC_HANDLETYPE *codecHdl)
+static CODEC_HANDLETYPE CameraCreateJpegEncProc(FrameConfig &fc, uint32_t srcDev, AvCodecMime codecMime,
+    const Param* param, uint32_t paramNum)
 {
-    uint32_t maxParamNum = 10; /* 10 maxParamNum */
-    Param param[maxParamNum];
-    uint32_t paramIndex = 0;
-
-    CameraJpegEncSetParam(Param, maxParamNum, paramIndex);
-    if (codecMime == MEDIA_MIMETYPE_VIDEO_HEVC) {
-        VideoCodecRcMode rcMode = VID_CODEC_RC_FIXQP;
-        param[paramIndex].key = KEY_VIDEO_RC_MODE;
-        param[paramIndex].val = &rcMode;
-        param[paramIndex].size = sizeof(VideoCodecRcMode);
-        paramIndex++;
-
-        Profile profile = HEVC_MAIN_PROFILE;
-        param[paramIndex].key = KEY_VIDEO_PROFILE;
-        param[paramIndex].val = &profile;
-        param[paramIndex].size = sizeof(Profile);
-        paramIndex++;
-
-        uint32_t frameRate = stream.fps;
-        param[paramIndex].key = KEY_VIDEO_FRAME_RATE;
-        param[paramIndex].val = &frameRate;
-        param[paramIndex].size = sizeof(uint32_t);
-        paramIndex++;
+    CODEC_HANDLETYPE codecHdl = nullptr;
+    if (CodecCreateByType(VIDEO_ENCODER, codecMime, &codecHdl) != 0) {
+        return nullptr;
     }
 
-    int32_t ret = CodecCreateByType(domainKind, codecMime, codecHdl);
+    int32_t ret = CodecSetParameter(codecHdl, param, paramNum);
     if (ret != 0) {
-        return MEDIA_ERR;
-    }
-
-    ret = CodecSetParameter(*codecHdl, param, paramIndex);
-    if (ret != 0) {
-        CodecDestroy(*codecHdl);
-        return MEDIA_ERR;
+        CodecDestroy(codecHdl);
+        return nullptr;
     }
 
     int32_t qfactor = -1;
@@ -273,20 +220,65 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
             .val = &qfactor,
             .size = sizeof(qfactor)
         };
-        ret = CodecSetParameter(*codecHdl, &jpegParam, 1);
+        ret = CodecSetParameter(codecHdl, &jpegParam, 1);
         if (ret != 0) {
             MEDIA_ERR_LOG("CodecSetParameter set jpeg qfactor failed.(ret=%u)", ret);
         }
     }
 
-    ret = SetVencSource(*codecHdl, srcDev);
+    ret = SetVencSource(codecHdl, srcDev);
     if (ret != 0) {
         MEDIA_ERR_LOG("Set video encoder source failed.");
-        CodecDestroy(*codecHdl);
-        return MEDIA_ERR;
+        CodecDestroy(codecHdl);
+        return nullptr;
     }
+    return codecHdl;
+}
 
-    return MEDIA_OK;
+static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t srcDev, CODEC_HANDLETYPE *codecHdl)
+{
+    uint32_t maxParamNum = 10; /* 10 maxParamNum */
+    Param param[maxParamNum];
+    uint32_t paramIndex = 0;
+
+    CodecType domainKind = VIDEO_ENCODER;
+    FillParam(param[paramIndex], KEY_CODEC_TYPE, (uint8_t* )&domainKind, sizeof(CodecType));
+    paramIndex++;
+
+    AvCodecMime codecMime = ConverFormat(stream.format);
+    FillParam(param[paramIndex], KEY_MIMETYPE, (uint8_t* )&codecMime, sizeof(AvCodecMime));
+    paramIndex++;
+
+    auto surfaceList = fc.GetSurfaces();
+    Surface *surface = surfaceList.front();
+
+    std::cout<<"------2: CameraCreateJpegEnc: surface width and height: "
+        <<surface->GetWidth()<<", "<<surface->GetHeight()<<std::endl;
+
+    uint32_t width = surface->GetWidth();
+    MEDIA_DEBUG_LOG("width=%d", width);
+    FillParam(param[paramIndex], KEY_VIDEO_WIDTH, (uint8_t* )&width, sizeof(uint32_t));
+    paramIndex++;
+
+    uint32_t height = surface->GetHeight();
+    MEDIA_DEBUG_LOG("height=%d", height);
+    FillParam(param[paramIndex], KEY_VIDEO_HEIGHT, (uint8_t* )&height, sizeof(uint32_t));
+    paramIndex++;
+    if (codecMime == MEDIA_MIMETYPE_VIDEO_HEVC) {
+        VideoCodecRcMode rcMode = VID_CODEC_RC_FIXQP;
+        FillParam(param[paramIndex], KEY_VIDEO_RC_MODE, (uint8_t* )&rcMode, sizeof(VideoCodecRcMode));
+        paramIndex++;
+
+        Profile profile = HEVC_MAIN_PROFILE;
+        FillParam(param[paramIndex], KEY_VIDEO_PROFILE, (uint8_t* )&profile, sizeof(Profile));
+        paramIndex++;
+
+        uint32_t frameRate = stream.fps;
+        FillParam(param[paramIndex], KEY_VIDEO_FRAME_RATE, (uint8_t* )&frameRate, sizeof(uint32_t));
+        paramIndex++;
+    }
+    *codecHdl = CameraCreateJpegEncProc(fc, srcDev, codecMime, param, paramIndex);
+    return (*codecHdl != nullptr) ? MEDIA_OK : MEDIA_ERR;
 }
 
 static int32_t CopyCodecOutput(uint8_t *dst, uint32_t *size, CodecBuffer *buffer)
@@ -381,7 +373,7 @@ int32_t RecordAssistant::OnVencBufferAvailble(UINTPTR userData, CodecBuffer* out
             MEDIA_ERR_LOG("Invalid buffer address.");
             break;
         }
-        ret = CopyCodecOutput(buf, &size, outBuf);
+        ret = CopyCodecOutput((uint8_t*)buf, &size, outBuf);
         if (ret != MEDIA_OK) {
             MEDIA_ERR_LOG("No available outBuf in surface.");
 #if (!defined(__LINUX__)) || (defined(ENABLE_PASSTHROUGH_MODE))
@@ -415,7 +407,7 @@ void RecordAssistant::ClearFrameConfig()
     codecInfo_.clear();
 }
 
-static int32_t SetFrameConfigEnd(int32_t result)
+int32_t RecordAssistant::SetFrameConfigEnd(int32_t result)
 {
     if (result != MEDIA_OK) {
         for (uint32_t i = 0; i < codecInfo_.size(); i++) {
@@ -672,8 +664,8 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
     }
     SurfaceBuffer *surfaceBuf = NULL;
     do {
-        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3, 0,
-		    sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3) != MEDIA_OK) { /* 3 buffCnt */
+        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 0x3, 0,/* 3 buffCnt */
+            sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3) != MEDIA_OK) { /* 3 buffCnt */
             MEDIA_ERR_LOG("memset_s failed!");
             delete(outInfo);
             return MEDIA_ERR;
@@ -696,7 +688,7 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
             MEDIA_ERR_LOG("Invalid buffer address.");
             break;
         }
-        if (CopyCodecOutput(buf, &size, outInfo) != MEDIA_OK) {
+        if (CopyCodecOutput((uint8_t*)buf, &size, outInfo) != MEDIA_OK) {
             MEDIA_ERR_LOG("No available buffer in capSurface_.");
             break;
         }
