@@ -191,13 +191,9 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
     return MEDIA_OK;
 }
 
-static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t srcDev, CODEC_HANDLETYPE *codecHdl)
+static void CameraJpegEncSetParam(Param &param, uint32_t maxParamNum, uint32_t &paramIndex)
 {
-    const char *videoEncName = "codec.jpeg.hardware.encoder";
-    const uint32_t maxParamNum = 10;
-    Param param[maxParamNum];
-    uint32_t paramIndex = 0;
-
+    (void) maxParamNum;
     CodecType domainKind = VIDEO_ENCODER;
     param[paramIndex].key = KEY_CODEC_TYPE;
     param[paramIndex].val = &domainKind;
@@ -229,9 +225,16 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
     param[paramIndex].val = &height;
     param[paramIndex].size = sizeof(uint32_t);
     paramIndex++;
+}
 
+static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t srcDev, CODEC_HANDLETYPE *codecHdl)
+{
+    uint32_t maxParamNum = 10; /* 10 maxParamNum */
+    Param param[maxParamNum];
+    uint32_t paramIndex = 0;
+
+    CameraJpegEncSetParam(Param, maxParamNum, paramIndex);
     if (codecMime == MEDIA_MIMETYPE_VIDEO_HEVC) {
-        MEDIA_DEBUG_LOG("cameraCreatePicEnc set fixQp");
         VideoCodecRcMode rcMode = VID_CODEC_RC_FIXQP;
         param[paramIndex].key = KEY_VIDEO_RC_MODE;
         param[paramIndex].val = &rcMode;
@@ -328,6 +331,26 @@ static ImageFormat Convert2HalImageFormat(uint32_t format)
     return FORMAT_YVU420;
 }
 
+static int32_t SurfaceSetSize(SurfaceBuffer* surfaceBuf, Surface* surface, uint32_t size)
+{
+#if (!defined(__LINUX__)) || (defined(ENABLE_PASSTHROUGH_MODE))
+    surfaceBuf->SetSize(surface->GetSize() - size);
+    if (surface->FlushBuffer(surfaceBuf) != 0) {
+        MEDIA_ERR_LOG("Flush g_surface failed.");
+        surface->CancelBuffer(surfaceBuf);
+        return -1;
+    }
+#else
+    surfaceBuf->SetSize(g_surface->GetSize() - size);
+    if (g_surface->FlushBuffer(surfaceBuf) != 0) {
+        MEDIA_ERR_LOG("Flush surface failed.");
+        g_surface->CancelBuffer(surfaceBuf);
+        return -1;
+    }
+#endif
+    return 0;
+}
+
 int32_t RecordAssistant::OnVencBufferAvailble(UINTPTR userData, CodecBuffer* outBuf, int32_t *acquireFd)
 {
     (void*)acquireFd;
@@ -370,23 +393,10 @@ int32_t RecordAssistant::OnVencBufferAvailble(UINTPTR userData, CodecBuffer* out
         }
         surfaceBuf->SetInt32(KEY_IS_SYNC_FRAME, (((outBuf->flag & STREAM_FLAG_KEYFRAME) == 0) ? 0 : 1));
         surfaceBuf->SetInt64(KEY_TIME_US, outBuf->timeStamp);
-#if (!defined(__LINUX__)) || (defined(ENABLE_PASSTHROUGH_MODE))
-        surfaceBuf->SetSize(surface->GetSize() - size);
-        if (surface->FlushBuffer(surfaceBuf) != 0) {
-            MEDIA_ERR_LOG("Flush g_surface failed.");
-            surface->CancelBuffer(surfaceBuf);
-            ret = -1;
+        ret = SurfaceSetSize(surfaceBuf, surface, size);
+        if (ret != 0) {
             break;
         }
-#else
-        surfaceBuf->SetSize(g_surface->GetSize() - size);
-        if (g_surface->FlushBuffer(surfaceBuf) != 0) {
-            MEDIA_ERR_LOG("Flush surface failed.");
-            g_surface->CancelBuffer(surfaceBuf);
-            ret = -1;
-            break;
-        }
-#endif
     }
     if (CodecQueueOutput(codecInfo->vencHdl_, outBuf, 0, -1) != 0) {
         MEDIA_ERR_LOG("Codec queue output failed.");
@@ -403,6 +413,35 @@ void RecordAssistant::ClearFrameConfig()
         CodecDestroy(codecInfo_[i].vencHdl_);
     }
     codecInfo_.clear();
+}
+
+static int32_t SetFrameConfigEnd(int32_t result)
+{
+    if (result != MEDIA_OK) {
+        for (uint32_t i = 0; i < codecInfo_.size(); i++) {
+            CodecDestroy(codecInfo_[i].vencHdl_);
+        }
+        codecInfo_.clear();
+        return result;
+    }
+    for (uint32_t i = 0; i < codecInfo_.size(); i++) {
+        result = CodecSetCallback(codecInfo_[i].vencHdl_, &recordCodecCb_, reinterpret_cast<UINTPTR>(&codecInfo_[i]));
+        if (result != 0) {
+            MEDIA_ERR_LOG("set CodecSetCallback failed ret:%d", result);
+            CodecDestroy(codecInfo_[i].vencHdl_);
+            break;
+        }
+    }
+
+    if (result == MEDIA_OK) {
+        state_ = LOOP_READY;
+    } else {
+        for (uint32_t i = 0; i < codecInfo_.size(); i++) {
+            CodecDestroy(codecInfo_[i].vencHdl_);
+        }
+        codecInfo_.clear();
+    }
+    return result;
 }
 
 int32_t RecordAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
@@ -456,31 +495,7 @@ int32_t RecordAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
         info.vencSurfaces_ = conList;
         codecInfo_.emplace_back(info);
     }
-    if (ret != MEDIA_OK) {
-        for (uint32_t i = 0; i < codecInfo_.size(); i++) {
-            CodecDestroy(codecInfo_[i].vencHdl_);
-        }
-        codecInfo_.clear();
-        return ret;
-    }
-    for (uint32_t i = 0; i < codecInfo_.size(); i++) {
-        ret = CodecSetCallback(codecInfo_[i].vencHdl_, &recordCodecCb_, reinterpret_cast<UINTPTR>(&codecInfo_[i]));
-        if (ret != 0) {
-            MEDIA_ERR_LOG("set CodecSetCallback failed ret:%d", ret);
-            CodecDestroy(codecInfo_[i].vencHdl_);
-            break;
-        }
-    }
-
-    if (ret == MEDIA_OK) {
-        state_ = LOOP_READY;
-    } else {
-        for (uint32_t i = 0; i < codecInfo_.size(); i++) {
-            CodecDestroy(codecInfo_[i].vencHdl_);
-        }
-        codecInfo_.clear();
-    }
-    return ret;
+    return SetFrameConfigEnd(ret);
 }
 
 int32_t RecordAssistant::Start(uint32_t streamId)
