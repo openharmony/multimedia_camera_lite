@@ -242,39 +242,35 @@ static int32_t CameraCreateJpegEnc(FrameConfig &fc, StreamAttr stream, uint32_t 
     uint32_t paramIndex = 0;
 
     CodecType domainKind = VIDEO_ENCODER;
-    FillParam(param[paramIndex], KEY_CODEC_TYPE, (uint8_t* )&domainKind, sizeof(CodecType));
+    FillParam(param[paramIndex], KEY_CODEC_TYPE, reinterpret_cast<uint8_t *>(&domainKind), sizeof(CodecType));
     paramIndex++;
 
     AvCodecMime codecMime = ConverFormat(stream.format);
-    FillParam(param[paramIndex], KEY_MIMETYPE, (uint8_t* )&codecMime, sizeof(AvCodecMime));
+    FillParam(param[paramIndex], KEY_MIMETYPE, reinterpret_cast<uint8_t *>(&codecMime), sizeof(AvCodecMime));
     paramIndex++;
 
     auto surfaceList = fc.GetSurfaces();
     Surface *surface = surfaceList.front();
-
-    std::cout<<"------2: CameraCreateJpegEnc: surface width and height: "
-        <<surface->GetWidth()<<", "<<surface->GetHeight()<<std::endl;
-
     uint32_t width = surface->GetWidth();
     MEDIA_DEBUG_LOG("width=%d", width);
-    FillParam(param[paramIndex], KEY_VIDEO_WIDTH, (uint8_t* )&width, sizeof(uint32_t));
+    FillParam(param[paramIndex], KEY_VIDEO_WIDTH, reinterpret_cast<uint8_t *>(&width), sizeof(uint32_t));
     paramIndex++;
 
     uint32_t height = surface->GetHeight();
     MEDIA_DEBUG_LOG("height=%d", height);
-    FillParam(param[paramIndex], KEY_VIDEO_HEIGHT, (uint8_t* )&height, sizeof(uint32_t));
+    FillParam(param[paramIndex], KEY_VIDEO_HEIGHT, reinterpret_cast<uint8_t *>(&height), sizeof(uint32_t));
     paramIndex++;
     if (codecMime == MEDIA_MIMETYPE_VIDEO_HEVC) {
         VideoCodecRcMode rcMode = VID_CODEC_RC_FIXQP;
-        FillParam(param[paramIndex], KEY_VIDEO_RC_MODE, (uint8_t* )&rcMode, sizeof(VideoCodecRcMode));
+        FillParam(param[paramIndex], KEY_VIDEO_RC_MODE, reinterpret_cast<uint8_t *>(&rcMode), sizeof(VideoCodecRcMode));
         paramIndex++;
 
         Profile profile = HEVC_MAIN_PROFILE;
-        FillParam(param[paramIndex], KEY_VIDEO_PROFILE, (uint8_t* )&profile, sizeof(Profile));
+        FillParam(param[paramIndex], KEY_VIDEO_PROFILE, reinterpret_cast<uint8_t *>(&profile), sizeof(Profile));
         paramIndex++;
 
         uint32_t frameRate = stream.fps;
-        FillParam(param[paramIndex], KEY_VIDEO_FRAME_RATE, (uint8_t* )&frameRate, sizeof(uint32_t));
+        FillParam(param[paramIndex], KEY_VIDEO_FRAME_RATE, reinterpret_cast<uint8_t *>(&frameRate), sizeof(uint32_t));
         paramIndex++;
     }
     *codecHdl = CameraCreateJpegEncProc(fc, srcDev, codecMime, param, paramIndex);
@@ -664,7 +660,7 @@ int32_t CaptureAssistant::Start(uint32_t streamId)
     }
     SurfaceBuffer *surfaceBuf = NULL;
     do {
-        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 0x3, 0,/* 3 buffCnt */
+        if (memset_s(outInfo, sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 0x3, 0,
             sizeof(CodecBuffer) + sizeof(CodecBufferInfo) * 3) != MEDIA_OK) { /* 3 buffCnt */
             MEDIA_ERR_LOG("memset_s failed!");
             delete(outInfo);
@@ -911,11 +907,30 @@ int32_t CameraDevice::TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId)
     return MEDIA_OK;
 }
 
-void CameraDevice::StopLoopingCapture()
+void CameraDevice::StopLoopingCapture(int32_t type)
 {
-    previewAssistant_.Stop();
-    recordAssistant_.Stop();
-    callbackAssistant_.Stop();
+    MEDIA_INFO_LOG("Stop looping capture in camera_device.cpp");
+
+    switch (type) {
+        case FRAME_CONFIG_RECORD:
+            MEDIA_INFO_LOG("Stop recorder");
+            recordAssistant_.Stop();;
+            break;
+        case FRAME_CONFIG_PREVIEW:
+            MEDIA_INFO_LOG("Stop preview");
+            previewAssistant_.Stop();
+            break;
+        case FRAME_CONFIG_CALLBACK:
+            MEDIA_INFO_LOG("Stop callback");
+            callbackAssistant_.Stop();
+            break;
+        default:
+            MEDIA_INFO_LOG("Stop all");
+            previewAssistant_.Stop();
+            recordAssistant_.Stop();
+            callbackAssistant_.Stop();
+            break;
+    }
 }
 
 int32_t CameraDevice::TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId)

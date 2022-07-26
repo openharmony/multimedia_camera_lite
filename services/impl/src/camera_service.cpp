@@ -27,7 +27,7 @@ CameraService::~CameraService()
     auto iter = deviceMap_.begin();
     while (iter != deviceMap_.end()) {
         if (iter->second != nullptr) {
-            iter->second->StopLoopingCapture();
+            iter->second->StopLoopingCapture(-1);
             int32_t ret = HalCameraDeviceClose((uint32_t)std::atoi(iter->first.c_str()));
             if (ret != 0) {
                 MEDIA_ERR_LOG("HalCameraDeviceClose failed. ret(%d)", ret);
@@ -180,7 +180,7 @@ int32_t CameraService::CloseCamera(string cameraId)
 {
     CameraDevice *device = GetCameraDevice(cameraId);
     if (device != NULL) {
-        device->StopLoopingCapture();
+        device->StopLoopingCapture(-1);
         deviceMap_.erase(cameraId);
     }
     int32_t ret = HalCameraDeviceClose((uint32_t)std::atoi(cameraId.c_str()));

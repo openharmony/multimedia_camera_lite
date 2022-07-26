@@ -35,7 +35,7 @@ enum LoopState {
     LOOP_STOP,
     LOOP_ERROR,
 };
-const int32_t RECODER_MAX_NUM = 2;
+const int32_t RECORDER_MAX_NUM = 2;
 class DeviceAssistant {
 public:
     std::thread *thrd_ = nullptr;
@@ -74,7 +74,7 @@ public:
 private:
     int32_t SetFrameConfigEnd(int32_t result);
     vector<CodecDesc> codecInfo_;
-    int32_t streamIdNum_[RECODER_MAX_NUM] = {-1, -1};
+    int32_t streamIdNum_[RECORDER_MAX_NUM] = {-1, -1};
 };
 
 class PreviewAssistant : public DeviceAssistant {
@@ -117,7 +117,7 @@ public:
     int32_t UnInitialize();
     int32_t SetCameraConfig();
     int32_t TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId);
-    void StopLoopingCapture();
+    void StopLoopingCapture(int32_t type);
     int32_t TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId);
     uint32_t GetCameraId();
 private:
