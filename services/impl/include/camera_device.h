@@ -58,16 +58,22 @@ public:
     }
 };
 
+struct CodecDesc {
+    CODEC_HANDLETYPE vencHdl_;
+    list<Surface *> vencSurfaces_;
+};
+
 class RecordAssistant : public DeviceAssistant {
 public:
     int32_t SetFrameConfig(FrameConfig &fc, uint32_t *streamId) override;
     int32_t Start(uint32_t streamId) override;
     int32_t Stop() override;
-
-    vector<CODEC_HANDLETYPE> vencHdls_;
-    vector<list<Surface *>> vencSurfaces_;
-    static int OnVencBufferAvailble(UINTPTR hComponent, UINTPTR dataIn, OutputInfo *buffer);
+    void ClearFrameConfig();
+    static int OnVencBufferAvailble(UINTPTR userDate, CodecBuffer *outBuf, int32_t *acquireFd);
     static CodecCallback recordCodecCb_;
+private:
+    int32_t SetFrameConfigEnd(int32_t result);
+    vector<CodecDesc> codecInfo_;
     int32_t streamIdNum_[RECORDER_MAX_NUM] = {-1, -1};
 };
 
