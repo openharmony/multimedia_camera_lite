@@ -55,7 +55,7 @@ config("external_camera_server_library") {
   include_dirs = [
     "//kernel/liteos_a/kernel/include",
     "//kernel/liteos_a/kernel/common",
-    "//utils/native/lite/include",
+    "//commonlibrary/utils_lite/include",
     "//foundation/multimedia/utils/lite/interfaces/kits",
     "//drivers/peripheral/format/interfaces/include",
     "//foundation/multimedia/utils/lite/hals",
