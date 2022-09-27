@@ -31,8 +31,6 @@
 #include "securec.h"
 
 #include <iostream>
-#include <string>
-#include <thread>
 
 using namespace OHOS;
 using namespace OHOS::Media;
