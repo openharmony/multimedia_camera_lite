@@ -339,7 +339,7 @@ static int32_t SurfaceSetSize(SurfaceBuffer* surfaceBuf, Surface* surface, uint3
 
 int32_t RecordAssistant::OnVencBufferAvailble(UINTPTR userData, CodecBuffer* outBuf, int32_t *acquireFd)
 {
-    (void*)acquireFd;
+    (void)acquireFd;
     CodecDesc* codecInfo = reinterpret_cast<CodecDesc* >(userData);
     list<Surface*> *surfaceList = &codecInfo->vencSurfaces_;
     if (surfaceList == nullptr || surfaceList->empty()) {
