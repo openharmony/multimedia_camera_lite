@@ -47,7 +47,7 @@ shared_library("camera_server") {
   public_deps = [
     "//foundation/graphic/surface:lite_surface",
     "//foundation/multimedia/camera_lite/frameworks:camera_lite",
-    "//foundation/multimedia/utils/lite:media_common",
+    "//foundation/multimedia/media_utils_lite:media_common",
   ]
 }
 
@@ -56,16 +56,16 @@ config("external_camera_server_library") {
     "//kernel/liteos_a/kernel/include",
     "//kernel/liteos_a/kernel/common",
     "//commonlibrary/utils_lite/include",
-    "//foundation/multimedia/utils/lite/interfaces/kits",
+    "//foundation/multimedia/media_utils_lite/interfaces/kits",
     "//drivers/peripheral/format/interfaces/include",
-    "//foundation/multimedia/utils/lite/hals",
+    "//foundation/multimedia/media_utils_lite/hals",
     "//base/security/permission_lite/interfaces/kits",
     "//foundation/multimedia/services/camera_lite/include",
     "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/registry",
     "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/samgr",
     "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/communication/broadcast",
     "//drivers/peripheral/codec/interfaces/include",
-    "//foundation/multimedia/utils/lite/hals",
+    "//foundation/multimedia/media_utils_lite/hals",
     "//foundation/multimedia/camera_lite/frameworks",
     "//drivers/peripheral/display/interfaces/include",
     "//drivers/peripheral/base",
