@@ -36,9 +36,9 @@ public:
     void Configure(CameraConfig &config) override;
     void Release() override;
 
-    int32_t TriggerLoopingCapture(FrameConfig &frameConfig) override;
+    int32_t TriggerLoopingCapture(FrameConfig &fc) override;
     void StopLoopingCapture(int32_t type) override;
-    int32_t TriggerSingleCapture(FrameConfig &frameConfig) override;
+    int32_t TriggerSingleCapture(FrameConfig &fc) override;
 
     const CameraAbility *GetAbility();
     const CameraInfo *GetInfo();
