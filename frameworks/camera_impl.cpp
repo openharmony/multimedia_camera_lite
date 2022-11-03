@@ -21,9 +21,8 @@
 using namespace std;
 namespace OHOS {
 namespace Media {
-CameraImpl::CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info)
+CameraImpl::CameraImpl(const std::string &id, const CameraAbility *ability, const CameraInfo *info):id_(id)
 {
-    id_ = id;
     ability_ = ability;
     info_ = info;
 }

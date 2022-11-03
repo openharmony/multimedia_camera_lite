@@ -45,7 +45,7 @@ list<CameraPicSize> CameraAbilityImpl::GetSupportParameterRange(uint32_t key) co
     }
 }
 
-void CameraAbilityImpl::SetSupportParameterRange(uint32_t key, list<CameraPicSize> &rangeList)
+void CameraAbilityImpl::SetSupportParameterRange(uint32_t key, const list<CameraPicSize> &rangeList)
 {
     switch (key) {
         case PARAM_KEY_SIZE:

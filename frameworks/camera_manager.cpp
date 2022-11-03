@@ -33,7 +33,7 @@ public:
     }
     ~CameraManagerImpl()
     {
-        for (auto &i : cameraMapCache_) {
+        for (const auto &i : cameraMapCache_) {
             delete i.second;
         }
     }
@@ -88,7 +88,7 @@ public:
     void RegisterCameraDeviceCallback(CameraDeviceCallback &callback, EventHandler &handler) override
     {
         deviceCbList_.emplace_back(make_pair(&callback, &handler));
-        for (auto &i : cameraMapCache_) {
+        for (const auto &i : cameraMapCache_) {
             string cameraId = i.first;
             handler.Post([&callback, cameraId]() { callback.OnCameraStatus(cameraId, CAMERA_DEVICE_STATE_AVAILABLE); });
         }
