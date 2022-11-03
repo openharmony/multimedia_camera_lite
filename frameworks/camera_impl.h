@@ -26,7 +26,7 @@ namespace Media {
 class CameraImpl : public Camera {
 public:
     CameraImpl() = delete;
-    CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info);
+    CameraImpl(const std::string &id, const CameraAbility *ability, const CameraInfo *info);
     ~CameraImpl() = default;
 
     std::string GetCameraId() override;
