@@ -26,7 +26,7 @@ namespace Media {
 class CameraImpl : public Camera {
 public:
     CameraImpl() = delete;
-    CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info);
+    CameraImpl(const std::string &id, const CameraAbility *ability, const CameraInfo *info);
     ~CameraImpl() = default;
 
     std::string GetCameraId() override;
@@ -36,9 +36,9 @@ public:
     void Configure(CameraConfig &config) override;
     void Release() override;
 
-    int32_t TriggerLoopingCapture(FrameConfig &frameConfig) override;
+    int32_t TriggerLoopingCapture(FrameConfig &fc) override;
     void StopLoopingCapture(int32_t type) override;
-    int32_t TriggerSingleCapture(FrameConfig &frameConfig) override;
+    int32_t TriggerSingleCapture(FrameConfig &fc) override;
 
     const CameraAbility *GetAbility();
     const CameraInfo *GetInfo();
