@@ -98,7 +98,6 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
                                     uint32_t srcDev,
                                     CODEC_HANDLETYPE *codecHdl)
 {
-    const char *name = "codec.video.hardware.encoder";
     const uint32_t maxParamNum = 10;
     uint32_t paramIndex = 0;
     Param param[maxParamNum];

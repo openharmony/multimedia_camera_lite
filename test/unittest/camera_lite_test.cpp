@@ -365,7 +365,10 @@ public:
             cout << "Wait camera created success" << endl;
             sleep(1);
         }
-
+        if (cam_ ==nullptr) {
+            cout << "StartRecord camera created failed is cam_ is nullptr" << endl;
+            return;
+        }
         ret = cam_->TriggerLoopingCapture(*fc);
         if (ret != 0) {
             cout << "camera start recording failed. ret=" << ret << endl;
@@ -401,6 +404,10 @@ public:
             cout << "Wait camera created success" << endl;
             sleep(1);
         }
+        if (cam_ ==nullptr) {
+            cout << "StartPreview camera created failed is cam_ is nullptr" << endl;
+            return;
+        }
         int32_t ret = cam_->TriggerLoopingCapture(*fc);
         if (ret != 0) {
             cout << "camera start preview failed. ret=" << ret << endl;
@@ -431,6 +438,10 @@ public:
             cout << "Wait camera created success" << endl;
             sleep(1);
         }
+        if (cam_ ==nullptr) {
+            cout << "Capture camera created failed is cam_ is nullptr" << endl;
+            return;
+        }
         g_onCaptureTriggerStartedFlag = true;
         cam_->TriggerSingleCapture(*fc);
         g_onCaptureTriggerCompletedFlag = true;
@@ -445,7 +456,7 @@ public:
             }
         }
 
-        while (cam_ == nullptr) {
+        if (cam_ == nullptr) {
             cout << "Camera is not ready." << endl;
             return;
         }
