@@ -31,7 +31,7 @@ public:
             MEDIA_ERR_LOG("This config is in use, do not support config modify.");
         }
         if (callback == nullptr || handler == nullptr) {
-            MEDIA_ERR_LOG("Invalid parameter.(callback=%p, handler=%p)", callback, handler);
+            MEDIA_ERR_LOG("Invalid parameter.");
         }
 
         callback_ = callback;
