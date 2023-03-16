@@ -52,8 +52,8 @@ static BOOL Initialize(Service* service, Identity identity)
     }
     CameraService* example = (CameraService*)service;
     example->identity = identity;
-    MEDIA_INFO_LOG("Initialize(%s)! Identity<%d, %d, %p>", Media::SERVICE_NAME,
-        identity.serviceId, identity.featureId, identity.queueId);
+    MEDIA_INFO_LOG("Initialize(%s)! Identity<%d, %d>", Media::SERVICE_NAME,
+        identity.serviceId, identity.featureId);
     return TRUE;
 }
 
@@ -62,8 +62,8 @@ static BOOL MessageHandle(Service* service, Request* msg)
     if (service == nullptr || msg == nullptr) {
         return FALSE;
     }
-    MEDIA_INFO_LOG("MessageHandle(%s)! Request<%d, %d, %p>",
-        service->GetName(service), msg->msgId, msg->msgValue, msg->data);
+    MEDIA_INFO_LOG("MessageHandle(%s)! Request<%d, %d>",
+        service->GetName(service), msg->msgId, msg->msgValue);
     return FALSE;
 }
 
