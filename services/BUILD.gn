@@ -45,7 +45,7 @@ shared_library("camera_server") {
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   public_deps = [
-    "//foundation/graphic/surface:lite_surface",
+    "//foundation/graphic/surface:surface_lite",
     "//foundation/multimedia/camera_lite/frameworks:camera_lite",
     "//foundation/multimedia/media_utils_lite:media_common",
   ]

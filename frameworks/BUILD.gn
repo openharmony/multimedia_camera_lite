@@ -97,7 +97,7 @@ shared_library("camera_lite") {
     ]
   }
   public_deps = [
-    "//foundation/graphic/surface:lite_surface",
+    "//foundation/graphic/surface:surface_lite",
     "//foundation/multimedia/media_lite/frameworks/recorder_lite:recorder_lite",
     "//foundation/multimedia/media_utils_lite:media_common",
   ]
