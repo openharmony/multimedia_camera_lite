@@ -24,7 +24,7 @@
             "components": [
                 "hilog_lite",
                 "permission",
-                "surface"
+                "surface_lite"
             ],
             "third_party": [
                 "bounds_checking_function"
