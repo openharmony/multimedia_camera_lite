@@ -23,7 +23,7 @@
         "deps": {
             "components": [
                 "hilog_lite",
-                "permission",
+                "permission_lite",
                 "surface_lite"
             ],
             "third_party": [
