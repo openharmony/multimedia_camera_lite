@@ -778,6 +778,7 @@ HWTEST_F(CameraLiteTest, Test_UnregisterCameraDeviceCallback_001, Level1)
     g_onCameraAvailableFlag = false;
     cameraKit->RegisterCameraDeviceCallback(deviceCallback, eventHdlr);
     sleep(2);
+    EXPECT_EQ(g_onCameraAvailableFlag, true);
     g_onCameraAvailableFlag = false;
     cameraKit->UnregisterCameraDeviceCallback(deviceCallback);
     sleep(2);
@@ -1176,7 +1177,7 @@ HWTEST_F(CameraLiteTest, Test_GetFrameConfigureType_003, Level1)
     camStateMng.StartPreview();
     sleep(2);
     camStateMng.Stop();
-    EXPECT_EQ(g_onGetFrameConfigureType, false);
+    EXPECT_EQ(g_onGetFrameConfigureType, true);
 }
 
 HWTEST_F(CameraLiteTest, Test_GetFrameConfigureType_004, Level1)
