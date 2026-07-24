@@ -83,6 +83,12 @@ void CameraServer::InitCameraServer()
 {
     CameraService *service = CameraService::GetInstance();
     service->Initialize();
+    service->RegCameraServiceCallback(this);
+}
+
+void CameraServer::OnCameraStatusChange(std::string &cameraId, CameraStatus status)
+{
+    ProcessCameraStatusChange(status, cameraId, sid_);
 }
 
 void CameraServer::GetCameraAbility(IpcIo *req, IpcIo *reply)
@@ -158,7 +164,8 @@ void CameraServer::CreateCamera(IpcIo *req, IpcIo *reply)
         MEDIA_ERR_LOG("sid is null, failed.");
         return;
     }
-    OnCameraStatusChange(cameraStatus, &sid);
+    WriteInt32(reply, cameraStatus);
+    OnCameraStatusChange(cameraId, (CameraServiceCallback::CameraStatus)cameraStatus);
 }
 
 void CameraServer::CloseCamera(IpcIo *req, IpcIo *reply)
@@ -172,7 +179,8 @@ void CameraServer::CloseCamera(IpcIo *req, IpcIo *reply)
         MEDIA_ERR_LOG("sid is null, failed.");
         return;
     }
-    OnCameraStatusChange(cameraStatus, &sid);
+    WriteInt32(reply, cameraStatus);
+    OnCameraStatusChange(cameraId, (CameraServiceCallback::CameraStatus)cameraStatus);
 }
 
 void CameraServer::SetCameraConfig(IpcIo *req, IpcIo *reply)
@@ -180,7 +188,13 @@ void CameraServer::SetCameraConfig(IpcIo *req, IpcIo *reply)
     size_t sz;
     string cameraId((const char*)(ReadString(req, &sz)));
     CameraDevice *device_ = CameraService::GetInstance()->GetCameraDevice(cameraId);
-    int32_t setStatus = device_->SetCameraConfig();
+    uint32_t settingSize = 0;
+    ReadUint32(req, &settingSize);
+    char *dataBuff = nullptr;
+    if (settingSize > 0) {
+        dataBuff = (char *)ReadBuffer(req, settingSize);
+    }
+    int32_t setStatus = device_->SetCameraConfig(dataBuff, settingSize);
     WriteInt32(reply, setStatus);
     OnCameraConfigured(setStatus);
 }
@@ -225,6 +239,12 @@ FrameConfig *DeserializeFrameConfig(IpcIo &io)
     int32_t invertMode = 0;
     ReadInt32(&io, &invertMode);
     fc->SetParameter(CAM_IMAGE_INVERT_MODE, invertMode);
+    int32_t width = 0;
+    ReadInt32(&io, &width);
+    fc->SetParameter(CAM_IMAGE_WIDTH, width);
+    int32_t height = 0;
+    ReadInt32(&io, &height);
+    fc->SetParameter(CAM_IMAGE_HEIGHT, height);
     CameraRect streamCrop;
     ReadInt32(&io, &streamCrop.x);
     ReadInt32(&io, &streamCrop.y);
@@ -308,18 +328,20 @@ void CameraServer::StopLoopingCapture(IpcIo *req, IpcIo *reply)
     device_->StopLoopingCapture(type);
 }
 
-void CameraServer::OnCameraStatusChange(int32_t ret, SvcIdentity *sid)
+void CameraServer::ProcessCameraStatusChange(CameraStatus status, std::string &cameraId, SvcIdentity &sid)
 {
     IpcIo io;
     uint8_t tmpData[DEFAULT_IPC_SIZE];
     IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
-    WriteInt32(&io, ret);
+    WriteInt32(&io, status);
+    WriteString(&io, cameraId.c_str());
     MessageOption option;
     MessageOptionInit(&option);
     option.flags = TF_OP_ASYNC;
-    int32_t result = SendRequest(*sid, ON_CAMERA_STATUS_CHANGE, &io, nullptr, option, nullptr);
+    MEDIA_INFO_LOG("ProcessCameraStatusChange cameraId:%s status:%d", cameraId.c_str(), status);
+    int32_t result = SendRequest(sid, ON_CAMERA_STATUS_CHANGE, &io, nullptr, option, nullptr);
     if (result != ERR_NONE) {
-        MEDIA_ERR_LOG("Create camera callback : on camera status change failed.");
+        MEDIA_ERR_LOG("on camera status change failed.:%d", result);
     }
 }
 

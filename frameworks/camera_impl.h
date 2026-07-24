@@ -26,8 +26,8 @@ namespace Media {
 class CameraImpl : public Camera {
 public:
     CameraImpl() = delete;
-    CameraImpl(const std::string &id, const CameraAbility *ability, const CameraInfo *info);
-    ~CameraImpl() = default;
+    CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info);
+    ~CameraImpl() override {};
 
     std::string GetCameraId() override;
     const CameraConfig *GetCameraConfig() const override;
@@ -43,12 +43,14 @@ public:
     const CameraAbility *GetAbility();
     const CameraInfo *GetInfo();
     void OnCreate(std::string cameraId);
+    void OnRelease(std::string cameraId);
     void OnCreateFailed();
     void OnFrameFinished(int32_t ret, FrameConfig &fc);
     void OnConfigured(int32_t ret, CameraConfig &config);
     void RegistCb(CameraStateCallback &callback, EventHandler &handler);
 
 private:
+    void ClearFrameConfigs();
     std::string id_;
     std::list<FrameConfig *> frameConfigs_;
     CameraConfig *config_ = nullptr;
