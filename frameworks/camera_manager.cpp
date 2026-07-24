@@ -34,7 +34,9 @@ public:
     ~CameraManagerImpl()
     {
         for (const auto &i : cameraMapCache_) {
-            delete i.second;
+            if (i.second != nullptr) {
+                delete i.second;
+            }
         }
     }
 
@@ -56,9 +58,6 @@ public:
                         i.second->Post(
                             [i, cameraId]() { i.first->OnCameraStatus(cameraId, CAMERA_DEVICE_STATE_UNAVAILABLE); });
                     }
-                    // User may still using icamera now
-                    delete p->second;
-                    cameraMapCache_.erase(p);
                 }
                 break;
             case CAMERA_STATUS_AVAIL:
@@ -73,6 +72,12 @@ public:
             case CAMERA_STATUS_CREATED:
                 if (p != cameraMapCache_.end()) {
                     p->second->OnCreate(cameraId);
+                }
+                break;
+            case CAMERA_STATUS_CLOSE:
+                if (p != cameraMapCache_.end()) {
+                    MEDIA_INFO_LOG("CAMERA_STATUS_CLOSE:%s ", cameraId.c_str());
+                    p->second->OnRelease(cameraId);
                 }
                 break;
             case CAMERA_STATUS_CREATE_FAILED:
@@ -92,6 +97,7 @@ public:
             string cameraId = i.first;
             handler.Post([&callback, cameraId]() { callback.OnCameraStatus(cameraId, CAMERA_DEVICE_STATE_AVAILABLE); });
         }
+        cameraServiceClient_->RegisterCameraDeviceCallback();
     }
 
     void UnregisterCameraDeviceCallback(CameraDeviceCallback &callback) override
@@ -153,6 +159,19 @@ public:
         p->second->RegistCb(callback, handler);
         cameraServiceClient_->CreateCamera(cameraId);
     }
+
+    void DeleteCamera(const string &cameraId) override
+    {
+        auto p = cameraMapCache_.find(cameraId);
+        if (p == cameraMapCache_.end()) {
+            MEDIA_ERR_LOG("The cameraId %s is not available", cameraId.c_str());
+            return;
+        }
+        delete cameraMapCache_[cameraId];
+        cameraMapCache_[cameraId] = nullptr;
+        cameraMapCache_.erase(cameraId);
+        MEDIA_INFO_LOG("The cameraId %s has been deleted", cameraId.c_str());
+    }
 private:
     CameraServiceClient *cameraServiceClient_;
     map<string, CameraImpl *> cameraMapCache_;
@@ -166,6 +185,11 @@ private:
         if (cam == nullptr) {
             MEDIA_FATAL_LOG("New object failed.");
             return;
+        }
+        auto p = cameraMapCache_.find(cameraId);
+        if (p != cameraMapCache_.end()) {
+            delete cameraMapCache_[cameraId];
+            cameraMapCache_[cameraId] = nullptr;
         }
         cameraMapCache_[cameraId] = cam;
     }

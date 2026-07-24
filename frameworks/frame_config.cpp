@@ -20,7 +20,13 @@ using namespace std;
 
 namespace OHOS {
 namespace Media {
+#ifdef MEDIA_INTERFACE_V1_0
+const int32_t DEFAULT_FPS = 60;
+const int32_t DEFAULT_WIDTH = 1920;
+const int32_t DEFAULT_HEIGHT = 1080;
+#else
 const int32_t DEFAULT_FPS = 30;
+#endif
 int32_t FrameConfig::GetFrameConfigType()
 {
     return type_;
@@ -92,6 +98,8 @@ void FrameConfig::SetValue(uint32_t key, const void *value)
         case CAM_FRAME_FPS:
         case CAM_IMAGE_INVERT_MODE:
         case CAM_IMAGE_FORMAT:
+        case CAM_IMAGE_WIDTH:
+        case CAM_IMAGE_HEIGHT:
             keyMap_[key] = *(static_cast<const int32_t *>(value));
             break;
         case CAM_IMAGE_CROP_RECT:
@@ -114,12 +122,23 @@ FrameConfig::FrameConfig(int32_t type) : type_(type)
     SetParameter(CAM_IMAGE_CROP_RECT, crop);
     SetParameter(CAM_IMAGE_INVERT_MODE, CAM_CENTER_MIRROR);
     SetParameter(CAM_FRAME_FPS, DEFAULT_FPS);
-    if (type == FRAME_CONFIG_RECORD) {
-        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_H265);
-    } else if (type == FRAME_CONFIG_CAPTURE) {
-        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_JPEG);
-    } else {
-        SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_YVU420);
+#ifdef MEDIA_INTERFACE_V1_0
+    SetParameter(CAM_IMAGE_WIDTH, DEFAULT_WIDTH);
+    SetParameter(CAM_IMAGE_HEIGHT, DEFAULT_HEIGHT);
+#endif
+    switch (type) {
+        case FRAME_CONFIG_RECORD:
+            SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_H265);
+            break;
+        case FRAME_CONFIG_CAPTURE:
+            SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_JPEG);
+            break;
+        case FRAME_CONFIG_CALLBACK_H264:
+            SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_H264);
+            break;
+        default:
+            SetParameter(CAM_IMAGE_FORMAT, CAM_FORMAT_YVU420);
+            break;
     }
 }
 } // namespace Media
