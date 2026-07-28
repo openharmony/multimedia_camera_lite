@@ -104,6 +104,7 @@ static int32_t SetVencSource(CODEC_HANDLETYPE codecHdl, uint32_t deviceId)
     return MEDIA_OK;
 }
 
+#ifdef MEDIA_INTERFACE_V1_0
 static int32_t SetVencDeBreatheEffect(FrameConfig &fc, CODEC_HANDLETYPE codecHdl)
 {
     int32_t deBreatheEffect = -1;
@@ -123,6 +124,7 @@ static int32_t SetVencDeBreatheEffect(FrameConfig &fc, CODEC_HANDLETYPE codecHdl
     }
     return MEDIA_OK;
 }
+#endif
 
 static uint32_t GetDefaultBitrate(PicSize size)
 {
@@ -175,12 +177,20 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
 #endif
     param[paramIndex].key = KEY_VIDEO_RC_MODE;
     param[paramIndex].val = &rcMode;
+#ifdef MEDIA_INTERFACE_V1_0
     param[paramIndex].size = sizeof(rcMode);
+#else
+    param[paramIndex].size = sizeof(VideoCodecRcMode);
+#endif
     paramIndex++;
 
     param[paramIndex].key = KEY_VIDEO_GOP_MODE;
     param[paramIndex].val = &gopMode;
+#ifdef MEDIA_INTERFACE_V1_0
     param[paramIndex].size = sizeof(gopMode);
+#else
+    param[paramIndex].size = sizeof(VideoCodecGopMode);
+#endif
     paramIndex++;
 
     Profile profile = HEVC_MAIN_PROFILE;
@@ -262,11 +272,13 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
         CodecDestroy(codecHdl);
         return MEDIA_ERR;
     }
+#ifdef MEDIA_INTERFACE_V1_0
     ret = SetVencDeBreatheEffect(fc, *codecHdl);
     if (ret != 0) {
         CodecDestroy(codecHdl);
         return MEDIA_ERR;
     }
+#endif
 
     return MEDIA_OK;
 }
@@ -403,12 +415,13 @@ static int32_t CameraCreatePicEnc(FrameConfig &fc, StreamAttr stream, uint32_t s
         CodecDestroy(*codecHdl);
         return MEDIA_ERR;
     }
-
+#ifdef MEDIA_INTERFACE_V1_0
     ret = SetVencDeBreatheEffect(fc, *codecHdl);
     if (ret != 0) {
         CodecDestroy(codecHdl);
         return MEDIA_ERR;
     }
+#endif
 
     return MEDIA_OK;
 }
