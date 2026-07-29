@@ -269,13 +269,13 @@ static int32_t CameraCreateVideoEnc(FrameConfig &fc,
 #endif
     ret = SetVencSource(*codecHdl, srcDev);
     if (ret != 0) {
-        CodecDestroy(codecHdl);
+        CodecDestroy(*codecHdl);
         return MEDIA_ERR;
     }
 #ifdef MEDIA_INTERFACE_V1_0
     ret = SetVencDeBreatheEffect(fc, *codecHdl);
     if (ret != 0) {
-        CodecDestroy(codecHdl);
+        CodecDestroy(*codecHdl);
         return MEDIA_ERR;
     }
 #endif
@@ -418,7 +418,7 @@ static int32_t CameraCreatePicEnc(FrameConfig &fc, StreamAttr stream, uint32_t s
 #ifdef MEDIA_INTERFACE_V1_0
     ret = SetVencDeBreatheEffect(fc, *codecHdl);
     if (ret != 0) {
-        CodecDestroy(codecHdl);
+        CodecDestroy(*codecHdl);
         return MEDIA_ERR;
     }
 #endif
@@ -432,6 +432,9 @@ static int32_t CopyCodecOutput(void *dst, uint32_t *size, OutputInfo *buffer)
     char *dstBuf = reinterpret_cast<char *>(dst);
     for (uint32_t i = 0; i < buffer->bufferCnt; i++) {
         uint32_t packSize = buffer->buffers[i].length - buffer->buffers[i].offset;
+        if (buffer->buffers[i].addr == nullptr) {
+            return MEDIA_ERR;
+        }
         errno_t ret = memcpy_s(dstBuf, *size, buffer->buffers[i].addr + buffer->buffers[i].offset, packSize);
         if (ret != EOK) {
             return MEDIA_ERR;
@@ -563,6 +566,10 @@ int32_t RecordAssistant::OnVencBufferAvailble(UINTPTR hComponent, UINTPTR dataIn
 {
     CODEC_HANDLETYPE hdl = reinterpret_cast<CODEC_HANDLETYPE>(hComponent);
     RecordAssistant *assistant = reinterpret_cast<RecordAssistant *>(dataIn);
+    if (assistant == nullptr) {
+        MEDIA_ERR_LOG("assistant is null.");
+        return MEDIA_ERR;
+    }
     list<Surface *> *surfaceList = nullptr;
     for (uint32_t idx = 0; idx < assistant->vencHdls_.size(); idx++) {
         if (assistant->vencHdls_[idx] == hdl) {
@@ -874,12 +881,9 @@ int32_t RecordAssistant::Stop()
         if (streamIdNum_[i] != INVALID_STREAM_ID) {
 #ifdef MEDIA_INTERFACE_V1_0
             halCameraDev_->HalCameraStreamOff(cameraId_.c_str(), streamIdNum_[i]);
-#else
-            HalCameraStreamOff(cameraId_, streamIdNum_[i]);
-#endif
-#ifdef MEDIA_INTERFACE_V1_0
             halCameraDev_->HalCameraStreamDestroy(cameraId_.c_str(), streamIdNum_[i]);
 #else
+            HalCameraStreamOff(cameraId_, streamIdNum_[i]);
             HalCameraStreamDestroy(cameraId_, streamIdNum_[i]);
 #endif
         }
@@ -1597,12 +1601,9 @@ int32_t CallbackH264Assistant::Stop()
         if (streamIdNum_[i] != INVALID_STREAM_ID) {
 #ifdef MEDIA_INTERFACE_V1_0
             halCameraDev_->HalCameraStreamOff(cameraId_.c_str(), streamIdNum_[i]);
-#else
-            HalCameraStreamOff(cameraId_, streamIdNum_[i]);
-#endif
-#ifdef MEDIA_INTERFACE_V1_0
             halCameraDev_->HalCameraStreamDestroy(cameraId_.c_str(), streamIdNum_[i]);
 #else
+            HalCameraStreamOff(cameraId_, streamIdNum_[i]);
             HalCameraStreamDestroy(cameraId_, streamIdNum_[i]);
 #endif
         }

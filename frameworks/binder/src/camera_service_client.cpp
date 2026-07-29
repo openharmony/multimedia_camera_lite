@@ -215,6 +215,10 @@ list<string> CameraServiceClient::GetCameraIdList()
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_GET_CAMERAIDLIST;
     para.data = this;
+    if (proxy_ == nullptr) {
+        MEDIA_ERR_LOG("proxy_ is null.");
+        return list_;
+    }
     int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERAIDLIST, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Get cameraId list ipc  transmission failed. (ret=%d)", ret);
