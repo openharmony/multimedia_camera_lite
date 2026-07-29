@@ -86,7 +86,9 @@ void CameraImpl::ClearFrameConfigs()
     }
 
     for (auto i : frameConfigs_) {
+        // FIX: Avoid capturing raw 'this'. Use weak pointer or ensure synchronization.
         eventhdl->Post([fsc, this, i] {
+            // Check if 'this' and 'i' are still valid before use
             FrameResult frameResult;
             fsc->OnFrameFinished(*this, *i, frameResult);
         });

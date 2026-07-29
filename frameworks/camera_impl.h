@@ -27,7 +27,17 @@ class CameraImpl : public Camera {
 public:
     CameraImpl() = delete;
     CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info);
-    ~CameraImpl() override {};
+    ~CameraImpl() override
+    {
+        if (config_ != nullptr) {
+            delete config_;
+            config_ = nullptr;
+        }
+        if (deviceClient_ != nullptr) {
+            delete deviceClient_;
+            deviceClient_ = nullptr;
+        }
+    }
 
     std::string GetCameraId() override;
     const CameraConfig *GetCameraConfig() const override;
