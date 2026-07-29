@@ -1770,18 +1770,38 @@ int32_t CameraDevice::TriggerLoopingCapture(FrameConfig &fc, uint32_t *streamId)
 
 void CameraDevice::StopLoopingCapture(int32_t type)
 {
-    previewAssistant_.Stop();
-    recordAssistant_.Stop();
-    callbackAssistant_.Stop();
-    callbackH264Assistant_.Stop();
-
-    if (type == -1) {
+    MEDIA_INFO_LOG("Stop looping capture in camera_device.cpp");
+    switch (type) {
+        case FRAME_CONFIG_RECORD:
+            MEDIA_INFO_LOG("Stop recorder");
+            recordAssistant_.Stop();
+            break;
+        case FRAME_CONFIG_PREVIEW:
+            MEDIA_INFO_LOG("Stop preview");
+            previewAssistant_.Stop();
+            break;
+        case FRAME_CONFIG_CALLBACK:
+            MEDIA_INFO_LOG("Stop callback");
+            callbackAssistant_.Stop();
 #ifdef MEDIA_INTERFACE_V1_0
-        halCameraDev_->HalCameraDeviceClose(cameraId_.c_str());
-#else
-        HalCameraDeviceClose(cameraId_);
+            callbackH264Assistant_.Stop();
 #endif
+            break;
+        default:
+            MEDIA_INFO_LOG("Stop all");
+            previewAssistant_.Stop();
+            recordAssistant_.Stop();
+            callbackAssistant_.Stop();
+#ifdef MEDIA_INTERFACE_V1_0
+            callbackH264Assistant_.Stop();
+#endif
+            break;
     }
+#ifdef MEDIA_INTERFACE_V1_0
+    if (type == -1) {
+        halCameraDev_->HalCameraDeviceClose(cameraId_.c_str());
+    }
+#endif
 }
 
 int32_t CameraDevice::TriggerSingleCapture(FrameConfig &fc, uint32_t *streamId)
