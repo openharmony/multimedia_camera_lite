@@ -37,8 +37,8 @@ CameraClient *CameraClient::GetInstance()
 
 bool CameraClient::InitCameraClient()
 {
-    HOS_SystemInit();
     if (proxy_ == nullptr) {
+        HOS_SystemInit();
         IUnknown *iUnknown = SAMGR_GetInstance()->GetDefaultFeatureApi(SERVICE_NAME);
         if (iUnknown == nullptr) {
             MEDIA_ERR_LOG("Camera server connecting failed.");

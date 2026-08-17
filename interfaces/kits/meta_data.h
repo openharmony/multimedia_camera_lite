@@ -82,7 +82,10 @@ typedef enum {
     CAM_AF_MODE,
     /* Image denoising level */
     PARAM_KEY_SIZE,
-    PARAM_KEY_IMAGE_ENCODE_QFACTOR
+    PARAM_KEY_IMAGE_ENCODE_QFACTOR,
+    PARAM_KEY_DEBREATHE_EFFECT,
+    CAM_IMAGE_WIDTH,
+    CAM_IMAGE_HEIGHT,
 } CameraFuncKey;
 
 /**

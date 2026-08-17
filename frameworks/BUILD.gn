@@ -23,7 +23,7 @@ shared_library("camera_lite") {
     "event_handler.cpp",
     "frame_config.cpp",
   ]
-
+  deps = []
   if (enable_media_passthrough_mode == true) {
     sources += [
       "../services/impl/src/camera_device.cpp",
@@ -38,8 +38,23 @@ shared_library("camera_lite") {
       "//foundation/multimedia/media_utils_lite/hals",
       "//drivers/peripheral/base",
     ]
-
-    ldflags = [ "-lhdi_camera" ]
+    if (board_name == "hispark_aries" || board_name == "hispark_aiflylite" ||
+      board_name == "hispark_aifly") {
+        deps += [
+          "//device/soc/hisilicon/common/hal/media/camera/source:hdi_camera",
+          "//device/soc/hisilicon/common/hal/media/camera/source/src/distributed_camera:hdi_virtual_camera",
+        ]
+    }
+    if (board_name == "hispark_taurus" || board_name == "hispark_aries" ||
+      board_name == "hispark_aiflylite" || board_name == "hispark_aifly") {
+        ldflags += [ "-lhdi_camera" ]
+        if (board_name == "hispark_aiflylite" || board_name == "hispark_aifly") {
+          ldflags += [
+            "-lcodec",
+            "-ldisplay_layer",
+          ]
+        }
+    }
     defines = [ "ENABLE_PASSTHROUGH_MODE" ]
   } else {
     sources += [
@@ -73,32 +88,27 @@ shared_library("camera_lite") {
     "-lpthread",
     "-L$ohos_root_path/$root_out_dir",
   ]
-  if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
-    ldflags += [
-      "-lcodec",
-      "-lhdi_videodisplayer",
-    ]
-  }
-
-  cflags = [ "-fPIC" ]
-  cflags += [ "-Wall" ]
-  cflags_cc = cflags
-  deps = [
+  deps += [
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//base/security/permission_lite/services/pms_client:pms_client",
     "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
     "//foundation/systemabilitymgr/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
-  if (board_name == "hispark_taurus" || board_name == "hispark_aries") {
-    deps += [
-      "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
-      "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
-    ]
+
+  cflags = [ "-fPIC" ]
+  cflags += [ "-Wall" ]
+  cflags_cc = cflags
+  if (board_name == "hispark_taurus" || board_name == "hispark_aries" ||
+      board_name == "hispark_aiflylite" || board_name == "hispark_aifly") {
+    if (enable_media_passthrough_mode == true) {
+      deps += [
+        "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
+      ]
+    }
   }
   public_deps = [
     "//foundation/graphic/surface_lite:surface_lite",
-    "//foundation/multimedia/media_lite/frameworks/recorder_lite:recorder_lite",
     "//foundation/multimedia/media_utils_lite:media_common",
   ]
 }

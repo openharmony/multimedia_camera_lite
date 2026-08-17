@@ -21,8 +21,9 @@
 using namespace std;
 namespace OHOS {
 namespace Media {
-CameraImpl::CameraImpl(const std::string &id, const CameraAbility *ability, const CameraInfo *info):id_(id)
+CameraImpl::CameraImpl(std::string &id, const CameraAbility *ability, const CameraInfo *info)
 {
+    id_ = id;
     ability_ = ability;
     info_ = info;
 }
@@ -49,10 +50,6 @@ FrameConfig *CameraImpl::GetFrameConfig(int32_t type)
 
 void CameraImpl::Configure(CameraConfig &config)
 {
-    if (config_ != nullptr) {
-        return;
-    }
-
     if (config.GetFrameStateCb() == nullptr || config.GetEventHandler() == nullptr) {
         return;
     }
@@ -77,9 +74,32 @@ void CameraImpl::OnConfigured(int32_t ret, CameraConfig &config)
     handler_->Post([this] { this->stateCb_->OnConfigured(*this); });
 }
 
+void CameraImpl::ClearFrameConfigs()
+{
+    FrameStateCallback *fsc = config_->GetFrameStateCb();
+    if (fsc == nullptr) {
+        return;
+    }
+    EventHandler *eventhdl = config_->GetEventHandler();
+    if (eventhdl == nullptr) {
+        return;
+    }
+
+    for (auto i : frameConfigs_) {
+        // FIX: Avoid capturing raw 'this'. Use weak pointer or ensure synchronization.
+        eventhdl->Post([fsc, this, i] {
+            // Check if 'this' and 'i' are still valid before use
+            FrameResult frameResult;
+            fsc->OnFrameFinished(*this, *i, frameResult);
+        });
+    }
+    frameConfigs_.clear();
+}
+
 void CameraImpl::Release()
 {
     if (config_ != nullptr) {
+        ClearFrameConfigs();
         delete config_;
         config_ = nullptr;
     }
@@ -87,6 +107,8 @@ void CameraImpl::Release()
         return;
     }
     deviceClient_->Release();
+    delete deviceClient_;
+    deviceClient_ = nullptr;
     if (handler_ == nullptr) {
         return;
     }
@@ -105,7 +127,7 @@ int32_t CameraImpl::TriggerLoopingCapture(FrameConfig &fc)
         return MEDIA_ERR;
     }
     FrameConfig *curFc = GetFrameConfig(type);
-    if (curFc != nullptr) {
+    if (curFc != nullptr && type != FRAME_CONFIG_PREVIEW) {
         MEDIA_ERR_LOG("Frame config of the input type is already existed.");
         return MEDIA_ERR;
     }
@@ -130,27 +152,7 @@ void CameraImpl::StopLoopingCapture(int32_t type = -1)
     if (config_ == nullptr) {
         return;
     }
-    FrameStateCallback *fsc = config_->GetFrameStateCb();
-    if (fsc == nullptr) {
-        return;
-    }
-    EventHandler *eventhdl = config_->GetEventHandler();
-    if (eventhdl == nullptr) {
-        return;
-    }
-
-    for (auto i : frameConfigs_) {
-        if (i->GetFrameConfigType() == type || type == -1) {
-            eventhdl->Post([fsc, this, i] {
-                FrameResult frameResult;
-                fsc->OnFrameFinished(*this, *i, frameResult);
-            });
-        }
-    }
-    /* clear all configs, if type == -1 */
-    if (type == -1) {
-        frameConfigs_.clear();
-    }
+    ClearFrameConfigs();
 }
 
 int32_t CameraImpl::TriggerSingleCapture(FrameConfig &fc)
@@ -186,9 +188,11 @@ const CameraInfo *CameraImpl::GetInfo()
 
 void CameraImpl::OnCreate(string cameraId)
 {
-    deviceClient_ = CameraDeviceClient::GetInstance();
     if (deviceClient_ == nullptr) {
-        return;
+        deviceClient_ = new (std::nothrow) CameraDeviceClient();
+        if (deviceClient_ == nullptr) {
+            return;
+        }
     }
     deviceClient_->SetCameraId(cameraId);
     deviceClient_->SetCameraImpl(this);
@@ -197,6 +201,15 @@ void CameraImpl::OnCreate(string cameraId)
         return;
     }
     handler_->Post([this] { this->stateCb_->OnCreated(*this); });
+    MEDIA_INFO_LOG("CameraImpl:OnCreate success");
+}
+
+void CameraImpl::OnRelease(std::string cameraId)
+{
+    if (stateCb_ == nullptr || handler_ == nullptr) {
+        return;
+    }
+    handler_->Post([this] { this->stateCb_->OnReleased(*this); });
 }
 
 void CameraImpl::OnFrameFinished(int32_t ret, FrameConfig &fc)

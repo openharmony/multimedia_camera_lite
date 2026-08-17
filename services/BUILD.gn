@@ -10,6 +10,7 @@
 # limitations under the License.
 
 import("//build/lite/config/component/lite_component.gni")
+import("//foundation/multimedia/media_utils_lite/config.gni")
 
 shared_library("camera_server") {
   sources = [
@@ -29,7 +30,6 @@ shared_library("camera_server") {
     "-lstdc++",
     "-lcodec",
     "-lhdi_camera",
-    "-lhdi_videodisplayer",
     "-lpthread",
     "-Wl,-rpath-link=$ohos_root_path/$root_out_dir",
   ]
@@ -40,7 +40,7 @@ shared_library("camera_server") {
     "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
     "//base/security/permission_lite/services/pms_client:pms_client",
     "//device/soc/hisilicon/common/hal/media:hardware_media_sdk",
-    "//device/soc/hisilicon/common/hal/middleware:middleware_source_sdk",
+    "//device/soc/hisilicon/common/hal/media/camera/source:hdi_camera",
     "//foundation/systemabilitymgr/samgr_lite/samgr:samgr",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
@@ -53,13 +53,13 @@ shared_library("camera_server") {
 
 config("external_camera_server_library") {
   include_dirs = [
-    "//kernel/liteos_a/kernel/include",
-    "//kernel/liteos_a/kernel/common",
     "//commonlibrary/utils_lite/include",
     "//foundation/multimedia/media_utils_lite/interfaces/kits",
     "//drivers/peripheral/format/interfaces/include",
     "//foundation/multimedia/media_utils_lite/hals",
     "//base/security/permission_lite/interfaces/kits",
+    "//foundation/multimedia/camera_lite/interfaces/kits",
+    "//foundation/multimedia/camera_lite/services/impl/include", #for camera impl
     "//foundation/multimedia/services/camera_lite/include",
     "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/registry",
     "//foundation/systemabilitymgr/samgr_lite/interfaces/kits/samgr",

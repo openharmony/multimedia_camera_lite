@@ -61,6 +61,16 @@ typedef enum {
     CAMERA_FACING_OTHERS
 } FacingType;
 
+typedef enum {
+    FORMAT_YVU420 = 0,
+    FORMAT_JPEG,
+    FORMAT_AVC,
+    FORMAT_HEVC,
+    FORMAT_RGB_BAYER_12BPP,
+    FORMAT_PRIVATE,
+    FORMAT_IMAGE_BUTT
+} ImageFormat;
+
 class CameraInfo {
 public:
     /**

@@ -128,6 +128,13 @@ public:
      * @param handler Indicates the event callback to register.
      */
     void CreateCamera(const std::string &cameraId, CameraStateCallback &callback, EventHandler &handler);
+ 
+    /**
+     * @brief Delete a camera object.
+     *
+     * @param cameraId Indicates the camera ID.
+     */
+    void DeleteCamera(const std::string &cameraId) const;
 
 private:
     /**

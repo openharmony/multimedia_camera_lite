@@ -48,6 +48,7 @@ constexpr int32_t FRAME_CONFIG_PREVIEW = 0;
 constexpr int32_t FRAME_CONFIG_RECORD = 1;
 constexpr int32_t FRAME_CONFIG_CAPTURE = 2;
 constexpr int32_t FRAME_CONFIG_CALLBACK = 3;
+constexpr int32_t FRAME_CONFIG_CALLBACK_H264 = 4;
 constexpr int32_t PRIVATE_TAG_LEN = 32;
 
 /**
