@@ -12,7 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "camera_service_client.h"
+#include <unistd.h>
+#include <string>
+#include <cstdio>
 #include "media_log.h"
 #include "samgr_lite.h"
 #include "camera_type.h"
@@ -20,13 +24,9 @@
 #include "meta_data.h"
 #include "camera_client.h"
 
-#include <string>
-#include <cstdio>
-
 using namespace std;
 namespace OHOS {
 namespace Media {
-static IpcObjectStub objectStub_;
 
 CameraServiceClient *CameraServiceClient::GetInstance()
 {
@@ -44,6 +44,37 @@ CameraServiceClient::~CameraServiceClient()
     if (para_ != nullptr) {
         delete para_;
         para_ = nullptr;
+    }
+}
+
+void CameraServiceClient::RegisterCameraDeviceCallback()
+{
+    if (para_ == nullptr) {
+        para_ = new (nothrow) CallBackPara;
+        if (para_ == nullptr) {
+            MEDIA_ERR_LOG("para_ is null.");
+            return;
+        }
+        para_->data = this;
+    }
+    objectStub_.func = CameraServiceClient::ServiceClientCallback;
+    objectStub_.args = para_;
+    objectStub_.isRemote = false;
+    sid_.handle = IPC_INVALID_HANDLE;
+    sid_.token = SERVICE_TYPE_ANONYMOUS;
+    sid_.cookie = reinterpret_cast<uintptr_t>(&objectStub_);
+    IpcIo io;
+    uint8_t tmpData[DEFAULT_IPC_SIZE];
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 1);
+    bool writeRemote = WriteRemoteObject(&io, &sid_);
+    if (!writeRemote) {
+        return;
+    }
+    CallBackPara para = {};
+    para.funcId = CAMERA_SERVER_SET_CAMERA_CALLBACK;
+    int32_t ans = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_CALLBACK, &io, &para, Callback);
+    if (ans != 0) {
+        MEDIA_ERR_LOG("Register camera device callback failed. (ret=%d)", ans);
     }
 }
 
@@ -141,7 +172,7 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
             ReadUint32(reply, &listSize);
             for (uint32_t i = 0; i < listSize; i++) {
                 size_t sz;
-                string cameraId((const char*)(ReadString(reply, &sz)));
+                string cameraId(reinterpret_cast<const char *>(ReadString(reply, &sz)));
                 client->list_.emplace_back(cameraId);
                 MEDIA_INFO_LOG("Callback : cameraId %s", cameraId.c_str());
             }
@@ -157,6 +188,16 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
             ReadInt32(reply, &client->ret_);
             break;
         }
+        case CAMERA_SERVER_CREATE_CAMERA: {
+            CameraServiceClient *client = static_cast<CameraServiceClient*>(para->data);
+            int32_t cameraStatus;
+            ReadInt32(reply, &cameraStatus);
+            if (client->cameraServiceCb_ != nullptr) {
+                client->cameraServiceCb_->OnCameraStatusChange(
+                    para->cameraId, (CameraServiceCallback::CameraStatus)cameraStatus);
+            }
+            break;
+        }
         default:
             MEDIA_ERR_LOG("unsupport funcId.");
             break;
@@ -166,17 +207,21 @@ int CameraServiceClient::Callback(void* owner, int code, IpcIo *reply)
 
 list<string> CameraServiceClient::GetCameraIdList()
 {
-    if (list_.empty()) {
-        IpcIo io;
-        uint8_t tmpData[DEFAULT_IPC_SIZE];
-        IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
-        CallBackPara para = {};
-        para.funcId = CAMERA_SERVER_GET_CAMERAIDLIST;
-        para.data = this;
-        uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERAIDLIST, &io, &para, Callback);
-        if (ret != 0) {
-            MEDIA_ERR_LOG("Get cameraId list ipc  transmission failed. (ret=%d)", ret);
-        }
+    MEDIA_INFO_LOG("CameraServiceClient::GetCameraIdList");
+    IpcIo io;
+    uint8_t tmpData[DEFAULT_IPC_SIZE];
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 0);
+
+    CallBackPara para = {};
+    para.funcId = CAMERA_SERVER_GET_CAMERAIDLIST;
+    para.data = this;
+    if (proxy_ == nullptr) {
+        MEDIA_ERR_LOG("proxy_ is null.");
+        return list_;
+    }
+    int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERAIDLIST, &io, &para, Callback);
+    if (ret != 0) {
+        MEDIA_ERR_LOG("Get cameraId list ipc  transmission failed. (ret=%d)", ret);
     }
     return list_;
 }
@@ -189,7 +234,7 @@ uint8_t CameraServiceClient::GetCameraModeNum()
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_GET_CAMERA_MODE_NUM;
     para.data = this;
-    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_MODE_NUM, &io, &para, Callback);
+    int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_MODE_NUM, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Get camera mode num failed. (ret=%d)", ret);
     }
@@ -198,7 +243,7 @@ uint8_t CameraServiceClient::GetCameraModeNum()
 
 CameraAbility *CameraServiceClient::GetCameraAbility(string &cameraId)
 {
-    std::map<string, CameraAbility*>::iterator iter = deviceAbilityMap_.find(cameraId);
+    std::map<string, CameraAbility*>::const_iterator iter = deviceAbilityMap_.find(cameraId);
     if (iter != deviceAbilityMap_.end()) {
         return iter->second;
     }
@@ -212,7 +257,7 @@ CameraAbility *CameraServiceClient::GetCameraAbility(string &cameraId)
     para.data = this;
 
     // wait for callback.
-    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_ABILITY, &io, &para, Callback);
+    int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_ABILITY, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Get camera ability ipc transmission failed. (ret=%d)", ret);
     }
@@ -227,7 +272,7 @@ CameraAbility *CameraServiceClient::GetCameraAbility(string &cameraId)
 
 CameraInfo *CameraServiceClient::GetCameraInfo(string &cameraId)
 {
-    std::map<string, CameraInfo*>::iterator iter = deviceInfoMap_.find(cameraId);
+    std::map<string, CameraInfo*>::const_iterator iter = deviceInfoMap_.find(cameraId);
     if (iter != deviceInfoMap_.end()) {
         return iter->second;
     }
@@ -240,7 +285,7 @@ CameraInfo *CameraServiceClient::GetCameraInfo(string &cameraId)
     para.funcId = CAMERA_SERVER_GET_CAMERA_INFO;
     para.data = this;
     // wait for callback.
-    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_INFO, &io, &para, Callback);
+    int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_GET_CAMERA_INFO, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Get camera info ipc transmission failed. (ret=%d)", ret);
     }
@@ -266,9 +311,10 @@ int32_t CameraServiceClient::ServiceClientCallback(uint32_t code, IpcIo *data, I
         case ON_CAMERA_STATUS_CHANGE: {
             int status;
             ReadInt32(data, &status);
+            size_t sz;
+            std::string cameraId(reinterpret_cast<const char *>(ReadString(data, &sz)));
             CameraServiceCallback::CameraStatus cameraStatus =
                 static_cast<CameraServiceCallback::CameraStatus>(status);
-            string cameraId = para->cameraId;
             client->cameraServiceCb_->OnCameraStatusChange(cameraId, cameraStatus);
             break;
         }
@@ -289,7 +335,7 @@ int32_t CameraServiceClient::SetCameraMode(uint8_t modeIndex)
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_SET_CAMERA_MODE_NUM;
     para.data = this;
-    uint32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_MODE_NUM, &io, &para, Callback);
+    int32_t ret = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_MODE_NUM, &io, &para, Callback);
     if (ret != 0) {
         MEDIA_ERR_LOG("Set camera mode failed.(ret=%d)", ret);
         return ret;
@@ -299,10 +345,12 @@ int32_t CameraServiceClient::SetCameraMode(uint8_t modeIndex)
 
 void CameraServiceClient::CreateCamera(string cameraId)
 {
-    para_ = new (nothrow) CallBackPara;
     if (para_ == nullptr) {
-        MEDIA_ERR_LOG("para_ is null, failed.");
-        return;
+        para_ = new (nothrow) CallBackPara;
+        if (para_ == nullptr) {
+            MEDIA_ERR_LOG("para_ is null.");
+            return;
+        }
     }
     para_->cameraId = cameraId;
     para_->data = this;
@@ -323,7 +371,7 @@ void CameraServiceClient::CreateCamera(string cameraId)
     if (!writeRemote) {
         return;
     }
-    uint32_t ans = proxy_->Invoke(proxy_, CAMERA_SERVER_CREATE_CAMERA, &io, para_, Callback);
+    int32_t ans = proxy_->Invoke(proxy_, CAMERA_SERVER_CREATE_CAMERA, &io, para_, Callback);
     if (ans != 0) {
         MEDIA_ERR_LOG("Create camera ipc  transmission failed. (ret=%d)", ans);
     }

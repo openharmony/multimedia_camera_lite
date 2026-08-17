@@ -67,6 +67,11 @@ void CameraKit::CreateCamera(const string &cameraId, CameraStateCallback &callba
     cameraManager_->CreateCamera(cameraId, callback, handler);
 }
 
+void CameraKit::DeleteCamera(const string &cameraId) const
+{
+    cameraManager_->DeleteCamera(cameraId);
+}
+
 uint8_t CameraKit::GetCameraModeNum()
 {
     return cameraManager_->GetCameraModeNum();

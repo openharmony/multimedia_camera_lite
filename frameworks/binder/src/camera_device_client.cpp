@@ -28,19 +28,16 @@
 using namespace std;
 namespace OHOS {
 namespace Media {
-static IpcObjectStub objectStub_;
-
-CameraDeviceClient *CameraDeviceClient::GetInstance()
-{
-    static CameraDeviceClient client;
-    return &client;
-}
 
 CameraDeviceClient::CameraDeviceClient()
 {
     cameraClient_ = CameraClient::GetInstance();
     if (cameraClient_->InitCameraClient()) {
         proxy_ = cameraClient_->GetIClientProxy();
+    }
+    para_ = new (nothrow) CallBackPara;
+    if (para_ == nullptr) {
+        MEDIA_ERR_LOG("para_ is null.");
     }
 }
 
@@ -94,6 +91,11 @@ int32_t CameraDeviceClient::SetCameraConfig(CameraConfig &cc)
     WriteString(&io, cameraId_.c_str());
     para_->data = this;
     para_->cameraConfig = &cc;
+    uint32_t len = cc.GetCameraSettings().size();
+    WriteUint32(&io, len);
+    if (len > 0) {
+        WriteBuffer(&io, cc.GetCameraSettings().c_str(), len);
+    }
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_SET_CAMERA_CONFIG;
     para.data = this;
@@ -129,6 +131,14 @@ int32_t SerilizeFrameConfig(IpcIo &io, FrameConfig &fc, uint32_t maxSurfaceNum)
     int32_t invertMode = 0;
     fc.GetParameter(CAM_IMAGE_INVERT_MODE, invertMode);
     WriteInt32(&io, invertMode);
+
+    int32_t width = 0;
+    fc.GetParameter(CAM_IMAGE_WIDTH, width);
+    WriteInt32(&io, width);
+
+    int32_t height = 0;
+    fc.GetParameter(CAM_IMAGE_HEIGHT, height);
+    WriteInt32(&io, height);
 
     CameraRect streamCrop;
     fc.GetParameter(CAM_IMAGE_CROP_RECT, streamCrop);
@@ -276,7 +286,10 @@ void CameraDeviceClient::SetCameraCallback()
     if (!writeRemote) {
         return;
     }
-
+    if (proxy_ == nullptr) {
+        MEDIA_ERR_LOG("proxy_ is null.");
+        return;
+    }
     CallBackPara para = {};
     para.funcId = CAMERA_SERVER_SET_CAMERA_CALLBACK;
     uint32_t ans = proxy_->Invoke(proxy_, CAMERA_SERVER_SET_CAMERA_CALLBACK, &io, &para, Callback);

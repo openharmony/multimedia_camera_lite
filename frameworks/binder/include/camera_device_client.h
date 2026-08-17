@@ -30,10 +30,10 @@ namespace Media {
 class CameraImpl;
 class CameraDeviceClient {
 public:
-    static CameraDeviceClient *GetInstance();
-    static int Callback(void* owner, int code, IpcIo *reply);
-
+    CameraDeviceClient();
     ~CameraDeviceClient();
+
+    static int Callback(void* owner, int code, IpcIo *reply);
 
     int32_t SetCameraConfig(CameraConfig &cc);
     int32_t TriggerLoopingCapture(FrameConfig &fc);
@@ -47,13 +47,13 @@ public:
     static int32_t SurfaceRequestHandler(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
     static int32_t DeviceClientCallback(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
 private:
-    CameraDeviceClient();
     CameraClient *cameraClient_ = nullptr;
     IClientProxy *proxy_ = nullptr;
     std::string cameraId_;
     CameraImpl *cameraImpl_ = nullptr;
     CallBackPara *para_ = nullptr;
-    SvcIdentity sid_;
+    SvcIdentity sid_ {0, 0, 0};
+    IpcObjectStub objectStub_ {nullptr, nullptr, false};
     int32_t ret_ = 0;
 };
 } // namespace Media

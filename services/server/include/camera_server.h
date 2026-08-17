@@ -18,10 +18,11 @@
 #include "camera_service.h"
 #include "ipc_skeleton.h"
 #include "camera_ability.h"
+#include "camera_service_callback.h"
 
 namespace OHOS {
 namespace Media {
-class CameraServer {
+class CameraServer : public CameraServiceCallback {
 public:
     static CameraServer *GetInstance();
     ~CameraServer() {}
@@ -39,12 +40,14 @@ public:
     void StopLoopingCapture(IpcIo *req, IpcIo *reply);
     void TriggerSingleCapture(IpcIo *req, IpcIo *reply);
     void SetCameraCallback(IpcIo *req, IpcIo *reply);
+    void ProcessCameraStatusChange(CameraStatus status, std::string &cameraId, SvcIdentity &sid);
     void OnTriggerSingleCaptureFinished(int32_t ret);
     void OnTriggerLoopingCaptureFinished(int32_t ret, int32_t streamId);
-    void OnCameraStatusChange(int32_t ret, SvcIdentity *sid);
     void OnCameraConfigured(int32_t ret);
     void GetCameraModeNum(IpcIo *req, IpcIo *reply);
     void SetCameraMode(IpcIo *req, IpcIo *reply);
+
+    void OnCameraStatusChange(std::string &cameraId, CameraStatus status) override;
 private:
     CameraServer()
     {

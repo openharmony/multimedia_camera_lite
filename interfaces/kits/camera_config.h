@@ -93,12 +93,23 @@ public:
         return nullptr;
     }
 
+    void SetCameraSettings(std::string strValue)
+    {
+        value_ = strValue;
+    }
+
+    std::string GetCameraSettings()
+    {
+        return value_;
+    }
+    
 protected:
     /**
      * @brief A constructor used to create a <b>CameraConfig</b> instance.
      *
      */
     CameraConfig() {}
+    std::string value_ = "";
 };
 } // namespace Media
 } // namespace OHOS

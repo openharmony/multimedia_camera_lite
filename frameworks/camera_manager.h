@@ -58,6 +58,7 @@ public:
 
     virtual void UnregisterCameraDeviceCallback(CameraDeviceCallback &callback) {}
     virtual void CreateCamera(const std::string &cameraId, CameraStateCallback &callback, EventHandler &handler) {}
+    virtual void DeleteCamera(const std::string &cameraId) {}
 protected:
     CameraManager() {}
 };

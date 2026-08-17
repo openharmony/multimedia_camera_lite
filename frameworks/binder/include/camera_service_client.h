@@ -38,6 +38,7 @@ public:
     static int32_t ServiceClientCallback(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
     uint8_t GetCameraModeNum();
     int32_t SetCameraMode(uint8_t modeIndex);
+    void RegisterCameraDeviceCallback();
 
 private:
     CameraServiceClient();
@@ -50,6 +51,7 @@ private:
     std::map<std::string, CameraInfo*> deviceInfoMap_;
     CameraServiceCallback *cameraServiceCb_ = nullptr;
     SvcIdentity sid_;
+    IpcObjectStub objectStub_;
     CallBackPara *para_ = nullptr;
     uint8_t cameraModeNum = 0;
     int32_t ret_ = 0;

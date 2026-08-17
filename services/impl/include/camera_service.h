@@ -31,18 +31,32 @@ public:
     CameraAbility *GetCameraAbility(std::string &cameraId);
     CameraInfo *GetCameraInfo(std::string &cameraId);
     CameraDevice *GetCameraDevice(std::string &cameraId);
-    int32_t CreateCamera(std::string cameraId);
-    int32_t CloseCamera(string cameraId);
-    list<string> GetCameraIdList();
+    int32_t CreateCamera(std::string &cameraId);
+    int32_t CloseCamera(std::string &cameraId);
+    list<std::string> GetCameraIdList();
     uint8_t GetCameraModeNum();
     int32_t SetCameraMode(uint8_t modeIndex);
+    void RegCameraServiceCallback(CameraServiceCallback *callback);
+    void CameraStatusChange(std::string &cameraId, CameraStatus status);
+    void SetCameraFormatRanges(CameraAbility *ability, const std::string &cameraId);
 private:
     CameraService();
-    int32_t InitCameraDevices();
-    std::map<string, CameraDevice*> deviceMap_;
-    std::map<string, CameraAbility*> deviceAbilityMap_;
-    std::map<string, CameraInfo*> deviceInfoMap_;
+#ifdef MEDIA_INTERFACE_V1_0
+    std::pair<CameraDevice*, HalCameraManager*> GetCameraDeviceInfo(std::string &cameraId);
+    HalCameraManager *GetHalCameraDevice(const std::string &cameraId);
+#endif
+#ifdef MEDIA_INTERFACE_V1_0
+    std::map<std::string, std::pair<CameraDevice*, HalCameraManager*>> deviceMap_;
+#else
+    std::map<std::string, CameraDevice*> deviceMap_;
+#endif
+    std::map<std::string, CameraAbility*> deviceAbilityMap_;
+    std::map<std::string, CameraInfo*> deviceInfoMap_;
     CameraServiceCallback *cameraServiceCb_ = nullptr;
+#ifdef MEDIA_INTERFACE_V1_0
+    HalCameraManager *localHalCameraDev_ = nullptr;
+#endif
+    bool inited_ = false;
 };
 } // namespace Media
 } // namespace OHOS
