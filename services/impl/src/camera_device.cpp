@@ -14,6 +14,7 @@
  */
 
 #include "camera_device.h"
+#include "parse_surface_int.h"
 
 #include <fcntl.h>
 #include <pthread.h>
@@ -535,10 +536,25 @@ void* PreviewAssistant::YuvCopyProcess(void *arg)
 
 static void GetSurfaceRect(Surface *surface, IRect *attr)
 {
-    attr->x = std::stoi(surface->GetUserData(string("region_position_x")));
-    attr->y = std::stoi(surface->GetUserData(string("region_position_y")));
-    attr->w = std::stoi(surface->GetUserData(string("region_width")));
-    attr->h = std::stoi(surface->GetUserData(string("region_hegiht")));
+    attr->x = 0;
+    attr->y = 0;
+    attr->w = 0;
+    attr->h = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t w = 0;
+    int32_t h = 0;
+    if (!ParseSurfaceInt(surface->GetUserData(string("region_position_x")), x) ||
+        !ParseSurfaceInt(surface->GetUserData(string("region_position_y")), y) ||
+        !ParseSurfaceInt(surface->GetUserData(string("region_width")), w) ||
+        !ParseSurfaceInt(surface->GetUserData(string("region_hegiht")), h)) {
+        MEDIA_ERR_LOG("invalid surface region userdata");
+        return;
+    }
+    attr->x = x;
+    attr->y = y;
+    attr->w = w;
+    attr->h = h;
 }
 
 int32_t PreviewAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
@@ -559,8 +575,15 @@ int32_t PreviewAssistant::SetFrameConfig(FrameConfig &fc, uint32_t *streamId)
     }
     StreamInfo streamInfo;
     streamInfo.type = STREAM_INFO_POS;
-    streamInfo.u.pos.x = std::stoi(surface->GetUserData(string("region_position_x")));
-    streamInfo.u.pos.y = std::stoi(surface->GetUserData(string("region_position_y")));
+    int32_t posX = 0;
+    int32_t posY = 0;
+    if (!ParseSurfaceInt(surface->GetUserData(string("region_position_x")), posX) ||
+        !ParseSurfaceInt(surface->GetUserData(string("region_position_y")), posY)) {
+        MEDIA_ERR_LOG("invalid surface position userdata");
+        return MEDIA_ERR;
+    }
+    streamInfo.u.pos.x = posX;
+    streamInfo.u.pos.y = posY;
 
     HalCameraStreamSetInfo(cameraId_, *streamId, &streamInfo);
     streamId_ = *streamId;
